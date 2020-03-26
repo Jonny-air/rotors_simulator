@@ -35,7 +35,6 @@
     <xacro:default_mavlink_interface namespace="${namespace}" imu_sub_topic="imu" rotor_count="6" />
   </xacro:if>
 
-  <!-- Mount an ADIS16448 IMU. -->
   <xacro:default_imu namespace="${namespace}" parent_link="${namespace}/base_link" />
 
   <xacro:if value="$(arg enable_ground_truth)">

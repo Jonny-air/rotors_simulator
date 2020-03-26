@@ -52,9 +52,6 @@
 
   <xacro:property name="rotor_drag_coefficient" value="12.06428e-05" />
   <xacro:property name="rolling_moment_coefficient" value="0.000001" />
-  <!-- <xacro:property name="length_rod" value="1.45" /> [m] -->
-  <!-- <xacro:property name="diameter_rod" value="0.004" /> [m] -->
-  <!-- <xacro:property name="diameter_ball" value="0.11" />  [m] -->
 
   <!-- Property Blocks -->
   <xacro:property name="body_inertia">
@@ -87,7 +84,7 @@
     robot_namespace="${namespace}"
     suffix="front_left"
     direction="ccw"
-    x = ${cos30*arm_length} y = ${sin30*arm_length} z = ${rotor_offset_top}
+    x = "${cos30*arm_length}" y = "${sin30*arm_length}" z = "${rotor_offset_top}"
     parent="${namespace}/base_link"
     mass_rotor="${mass_rotor}"
     radius_rotor="${radius_rotor}"
@@ -107,7 +104,7 @@
     robot_namespace="${namespace}"
     suffix="left"
     direction="cw"
-    x = 0 y = ${arm_length} z = ${rotor_offset_top}
+    x = "0" y = "${arm_length}" z = "${rotor_offset_top}"
     parent="${namespace}/base_link"
     mass_rotor="${mass_rotor}"
     radius_rotor="${radius_rotor}"
@@ -127,7 +124,7 @@
     robot_namespace="${namespace}"
     suffix="back_left"
     direction="ccw"
-    x = -${cos30*arm_length} y = ${sin30*arm_length} z = ${rotor_offset_top}
+    x = "-${cos30*arm_length}" y = "${sin30*arm_length}" z = "${rotor_offset_top}"
     parent="${namespace}/base_link"
     mass_rotor="${mass_rotor}"
     radius_rotor="${radius_rotor}"
@@ -147,7 +144,7 @@
     robot_namespace="${namespace}"
     suffix="back_right"
     direction="cw"
-    x = -${cos30*arm_length} y = -${sin30*arm_length} z = ${rotor_offset_top}
+    x = "-${cos30*arm_length}" y = "-${sin30*arm_length}" z = "${rotor_offset_top}"
     parent="${namespace}/base_link"
     mass_rotor="${mass_rotor}"
     radius_rotor="${radius_rotor}"
@@ -167,7 +164,7 @@
     robot_namespace="${namespace}"
     suffix="right"
     direction="ccw"
-    x=0 y=-${arm_length} z=${rotor_offset_top}
+    x="0" y="-${arm_length}" z="${rotor_offset_top}"
     parent="${namespace}/base_link"
     mass_rotor="${mass_rotor}"
     radius_rotor="${radius_rotor}"
@@ -187,7 +184,7 @@
     robot_namespace="${namespace}"
     suffix="front_right"
     direction="cw"
-    x = ${cos30*arm_length} y = -${sin30*arm_length} z = ${rotor_offset_top}
+    x = "${cos30*arm_length}" y = "-${sin30*arm_length}" z = "${rotor_offset_top}"
     parent="${namespace}/base_link"
     mass_rotor="${mass_rotor}"
     radius_rotor="${radius_rotor}"

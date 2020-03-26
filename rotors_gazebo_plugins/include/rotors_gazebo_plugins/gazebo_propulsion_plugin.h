@@ -43,6 +43,7 @@
 #include "WindSpeedBeta.pb.h"
 #include "ConnectGazeboToRosTopic.pb.h"
 #include "Float32.pb.h"
+#include "CommandMotorSpeed.pb.h"
 #include "vector2d.pb.h"
 
 #include "common.h"
@@ -52,6 +53,7 @@ namespace gazebo {
 
 typedef const boost::shared_ptr<const gz_visualization_msgs::VisVectorArray> GzVisVectorArrayMsgPtr;
 typedef const boost::shared_ptr<const gz_std_msgs::Float32> GzFloat32MsgPtr;
+typedef const boost::shared_ptr<const gz_mav_msg::CommandMotorSpeed> GzCommandMotorSpeedMsgPtr;
 typedef const boost::shared_ptr<const gz_mav_msgs::WindSpeedBeta> WindPtr;
 typedef ignition::math::Vector3d V3D;
 typedef ignition::math::Matrix3<double> M3D;
@@ -150,6 +152,7 @@ private:
         double tau_n = 0.3;    // prop/motor time constant falling [s]
         double tau_su = 0.1;     // prop/motor time constant spool up [s]
         double dt = 0.0;       // discrete time step for motor simulation [s]
+        int motor_number = 0;
 
         transport::SubscriberPtr omega_ref_sub = nullptr;
         std::string omega_ref_subtopic;
@@ -173,6 +176,10 @@ private:
 
         void PropSpeedCallback(GzFloat32MsgPtr& ref){
             omega_ref = (double)ref->data();
+        }
+
+        void PropSpeedCallbackAlt(GzCommandMotorSpeedMsgPtr& ref){
+            omega_ref = (double)ref->motor_speed(this->motor_number);
         }
 
         void MotorDyn(){

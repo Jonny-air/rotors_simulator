@@ -173,6 +173,13 @@ void GazeboPropulsion::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf) {
             else
                 gzwarn<<"No max prop speed defined, using default \n";
 
+            if (_sdf_propeller->HasElement("motorNumber"))
+                propellers_[idx].motor_number = _sdf_propeller->GetElement("motorNumber")->Get<int>();
+            else{
+                gzwarn<<"No max prop speed defined, using default \n";
+                propellers_[idx].motor_number = 0;
+            }
+
             // inertia tensor (assuming flat disk) expressed in propeller* frame
             // propeller* frame: parent-fixed and x-axis aligned with prop axis
             M3D inertia_prop = propellers_[idx].prop_params.mass *
@@ -311,7 +318,7 @@ void GazeboPropulsion::OnUpdate() {
 
             if(!propellers_[idx].omega_ref_subtopic.empty()){
                 propellers_[idx].omega_ref_sub = node_handle_->Subscribe("~/" + namespace_ + "/" + propellers_[idx].omega_ref_subtopic,
-                                                                         &GazeboPropulsion::Propeller::PropSpeedCallback,
+                                                                         &GazeboPropulsion::Propeller::PropSpeedCallbackAlt,
                                                                          &propellers_[idx]);
             }
 

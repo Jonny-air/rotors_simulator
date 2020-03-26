@@ -86,7 +86,7 @@
 
   <!-- Rotor joint and link -->
   <xacro:macro name="vertical_rotor_advanced"
-    params="robot_namespace suffix direction parent mass_rotor radius_rotor time_constant_up time_constant_down max_rot_velocity dead_rot_velocity motor_number color use_own_mesh mesh *origin *inertia">
+    params="robot_namespace suffix direction x y z parent mass_rotor radius_rotor time_constant_up time_constant_down max_rot_velocity dead_rot_velocity motor_number color use_own_mesh mesh *origin *inertia">
 
     <joint name="${robot_namespace}/rotor_${motor_number}_joint" type="continuous">
       <xacro:insert_block name="origin" />
@@ -151,7 +151,7 @@
         <prop name="rotor_${motor_number}">
           <jointName>${robot_namespace}/rotor_${motor_number}_joint</jointName>
           <linkNameParent>${namespace}/base_link</linkNameParent>
-          <cp>0 0 4</cp>
+          <cp>${x} ${y} ${z}</cp>
           <axisPosRot>0 0 -1</axisPosRot>
           <turnDir>${direction}</turnDir>
           <speedRefTopic>gazebo/command/motor_speed</speedRefTopic>
