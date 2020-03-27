@@ -36,7 +36,7 @@
       <arg name="log_file" value="$(arg log_file)"/>
     </include>
 
-    <!-- optional joystick:
+
     <node name="key_joystick" pkg="rotors_joy_interface" type="key_joystick.py" />
 
     <node name="joy_node" pkg="joy" type="joy_node" />
@@ -50,15 +50,15 @@
       <remap from="odometry" to="odometry_sensor1/odometry" />
     </node>
 
-    -->
 
+    <!-- optional joystick:
     <node name="lee_position_controller_node" pkg="rotors_control" type="lee_position_controller_node" output="screen">
-      <!-- the controller gets its parameters from the lee_controller_peregrine.yaml: -->
       <rosparam command="load" file="$(find rotors_gazebo)/resource/lee_controller_$(arg mav_name).yaml" />
       <rosparam command="load" file="$(find rotors_gazebo)/resource/$(arg mav_name).yaml" />
       <remap from="odometry" to="odometry_sensor1/odometry" />
     </node>
-
+    -->
+    
     <node name="hovering_example" pkg="rotors_gazebo" type="hovering_example" output="screen"/>
 
     <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />

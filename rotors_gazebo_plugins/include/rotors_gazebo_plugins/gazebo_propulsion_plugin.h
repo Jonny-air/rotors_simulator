@@ -53,7 +53,7 @@ namespace gazebo {
 
 typedef const boost::shared_ptr<const gz_visualization_msgs::VisVectorArray> GzVisVectorArrayMsgPtr;
 typedef const boost::shared_ptr<const gz_std_msgs::Float32> GzFloat32MsgPtr;
-typedef const boost::shared_ptr<const gz_mav_msg::CommandMotorSpeed> GzCommandMotorSpeedMsgPtr;
+typedef const boost::shared_ptr<const gz_mav_msgs::CommandMotorSpeed> GzCommandMotorSpeedMsgPtr;
 typedef const boost::shared_ptr<const gz_mav_msgs::WindSpeedBeta> WindPtr;
 typedef ignition::math::Vector3d V3D;
 typedef ignition::math::Matrix3<double> M3D;
