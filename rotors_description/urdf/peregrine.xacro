@@ -41,11 +41,11 @@
   <xacro:property name="motor_constant" value="4.0879e-5" /> <!-- [kg m/s^2] -->
   <xacro:property name="moment_constant" value="0.0247" /> <!-- [m] -->
 
-  <xacro:property name="time_constant_up" value="0.05" /> <!-- [s] -->
-  <xacro:property name="time_constant_down" value="0.1" /> <!-- [s] -->
+  <xacro:property name="time_constant_up" value="0.02" /> <!-- [s] -->
+  <xacro:property name="time_constant_down" value="0.01" /> <!-- [s] -->
 
   <xacro:property name="max_rot_velocity" value="838" /> <!-- [rad/s] euals 8000rpm -->
-  <xacro:property name="dead_rot_velocity" value="100" />
+  <xacro:property name="dead_rot_velocity" value="1" />
 
   <xacro:property name="sin30" value="0.5" />
   <xacro:property name="cos30" value="0.866025403784" />

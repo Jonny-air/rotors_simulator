@@ -454,6 +454,7 @@ void GazeboPropulsion::OnUpdate() {
                  std::abs(rps)*propellers_[idx].prop_params.diameter*propellers_[idx].prop_params.k_q0)*
                 (rps>=0 ? 1.0 : -1.0);
         V3D drag_torque_ = joint_axis * drag_torque;
+        //gzdbg << "drag_torque"<<idx<<": "<< drag_torque_ <<"\n";
         if(!isnan(drag_torque_.Length())) {
           //propellers_[idx].ref_link->AddTorque(drag_torque_);
           propellers_[idx].act_link->AddTorque(drag_torque_);
@@ -466,6 +467,7 @@ void GazeboPropulsion::OnUpdate() {
         V3D rolling_moment = -propellers_[idx].turning_direction*std::abs(rps*2*M_PI) *
                 propellers_[idx].prop_params.rolling_moment_coefficient *
                 body_velocity_radial;
+        //gzdbg << "rolling_moment"<<idx<<": "<< rolling_moment <<"\n";
         if(!isnan(rolling_moment.Length())) {
           //propellers_[idx].ref_link->AddTorque(rolling_moment);
           propellers_[idx].act_link->AddTorque(rolling_moment);
