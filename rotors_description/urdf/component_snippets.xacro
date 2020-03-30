@@ -19,6 +19,18 @@
 <robot xmlns:xacro="http://ros.org/wiki/xacro">
   <xacro:property name="pi" value="3.14159265359" />
 
+  <!-- Macro for the inertia of a box -->
+  <xacro:macro name="box_inertia" params="x y z mass">
+    <inertia ixx="${0.0833333 * mass * (y*y + z*z)}" ixy="0.0" ixz="0.0"
+      iyy="${0.0833333 * mass * (x*x + z*z)}" iyz="0.0"
+      izz="${0.0833333 * mass * (x*x + y*y)}" />
+  </xacro:macro>
+
+  <!-- Macro for the inertia of a cube -->
+  <xacro:macro name="cube_inertia" params="l mass">
+    <xacro:box_inertia x="${l}" y="${l}" z="${l}" mass="${mass}" />
+  </xacro:macro>
+
   <!-- Macro to add logging to a bag file. -->
   <xacro:macro name="bag_plugin_macro"
     params="namespace bag_file rotor_velocity_slowdown_sim wait_to_record_bag">
@@ -112,6 +124,89 @@
         </plugin>
       </sensor>
     </gazebo>
+  </xacro:macro>
+
+  <!-- Macro to add a camera. 2 (configurable mass, no massless links) -->
+  <xacro:macro name="camera_macro_2"
+    params="namespace parent_link camera_suffix frame_rate
+      horizontal_fov image_width image_height image_format min_distance
+      max_distance noise_mean noise_stddev mass enable_visual *geometry *inertia *origin">
+
+    <link name="${namespace}/camera_${camera_suffix}_link">
+    <xacro:if value="${enable_visual}">
+      <visual>
+        <origin xyz="0 0 0" rpy="0 ${pi/2} 0" />
+        <geometry>
+          <xacro:insert_block name="geometry" />
+        </geometry>
+        <material name="red" />
+      </visual>
+    </xacro:if>
+      <inertial>
+        <mass value="${mass-0.001}" />
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <xacro:insert_block name="inertia" />
+      </inertial>
+    </link>
+
+    <joint name="${namespace}/camera_${camera_suffix}_joint" type="fixed">
+      <xacro:insert_block name="origin" />
+      <parent link="${parent_link}" />
+      <child link="${namespace}/camera_${camera_suffix}_link" />
+    </joint>
+
+    <link name="${namespace}/camera_${camera_suffix}_optical_link">
+    <inertial>
+      <mass value="0.001" />
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <xacro:cube_inertia l="0.02" mass="0.001" />
+    </inertial>
+    </link>
+
+    <joint name="${namespace}/camera_${camera_suffix}_optical_joint" type="fixed" >
+      <origin xyz="0 0 0" rpy="${-pi/2} 0 ${-pi/2}" />
+      <parent link="${namespace}/camera_${camera_suffix}_link" />
+      <child link="${namespace}/camera_${camera_suffix}_optical_link" />
+    </joint>
+
+    <gazebo reference="${namespace}/camera_${camera_suffix}_link">
+      <sensor type="camera" name="${namespace}_camera_${camera_suffix}">
+        <update_rate>${frame_rate}</update_rate>
+        <camera name="head">
+          <horizontal_fov>${horizontal_fov}</horizontal_fov>
+          <image>
+            <width>${image_width}</width>
+            <height>${image_height}</height>
+            <format>${image_format}</format>
+          </image>
+          <clip>
+            <near>${min_distance}</near>
+            <far>${max_distance}</far>
+          </clip>
+          <noise>
+            <type>gaussian</type>
+            <mean>${noise_mean}</mean>
+            <stddev>${noise_stddev}</stddev>
+          </noise>
+        </camera>
+        <plugin name="${namespace}_camera_${camera_suffix}_controller" filename="libgazebo_ros_camera.so">
+          <robotNamespace>${namespace}</robotNamespace>
+          <alwaysOn>true</alwaysOn>
+          <updateRate>${frame_rate}</updateRate>
+          <cameraName>cam_${camera_suffix}</cameraName>
+          <imageTopicName>image_raw</imageTopicName>
+          <cameraInfoTopicName>camera_info</cameraInfoTopicName>
+          <frameName>camera_${camera_suffix}_link</frameName>
+          <hackBaseline>0.7</hackBaseline>
+          <distortionK1>0.0</distortionK1>
+          <distortionK2>0.0</distortionK2>
+          <distortionK3>0.0</distortionK3>
+          <distortionT1>0.0</distortionT1>
+          <distortionT2>0.0</distortionT2>
+        </plugin>
+      </sensor>
+    </gazebo>
+
   </xacro:macro>
 
   <!-- Camera joint macro - just the joints, links, and collisions for a single
@@ -863,6 +958,28 @@
       <origin xyz="0 0 0" rpy="0 0 0" />
     </xacro:imu_plugin_macro>
   </xacro:macro>
+
+  <xacro:macro name="default_camera" params="namespace parent_link camera_suffix *origin">
+   <xacro:camera_macro_2
+     namespace="${namespace}"
+     parent_link="${parent_link}"
+     camera_suffix="${camera_suffix}"
+     frame_rate="30"
+     horizontal_fov="1.3962634"
+     image_width="752"
+     image_height="480"
+     image_format="L8"
+     min_distance="0.02"
+     max_distance="8000"
+     noise_mean="0.0"
+     noise_stddev="0.007"
+     mass = "0.01"
+     enable_visual="true">
+     <mesh filename="package://rotors_description/meshes/vi_camera.dae" scale="1 1 1" />
+     <xacro:cube_inertia l="0.02" mass="0.01" />
+     <xacro:insert_block name="origin" />
+   </xacro:camera_macro_2>
+ </xacro:macro>
 
   <xacro:macro name="default_gps" params="namespace parent_link">
     <!-- Default GPS. -->

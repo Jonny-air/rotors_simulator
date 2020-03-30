@@ -107,8 +107,10 @@ void GazeboPropulsion::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf) {
                 gzerr<<"Using linkNameRef for linkNameAct.\n";
             }
 
-            if (_sdf_propeller->HasElement("cp"))
+            if (_sdf_propeller->HasElement("cp")){
                 propellers_[idx].p_cp = _sdf_propeller->Get<V3D>("cp");
+                gzdbg<<"_sdf_propeller ["<<idx<<"] created at "<< propellers_[idx].p_cp << "\n";
+            }
             else
                 gzwarn<<"_sdf_propeller ["<<idx<<"] is missing 'cp' element \n";
 
@@ -176,7 +178,7 @@ void GazeboPropulsion::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf) {
             if (_sdf_propeller->HasElement("motorNumber")) {
                 propellers_[idx].motor_number = _sdf_propeller->GetElement("motorNumber")->Get<int>();
             } else {
-                gzwarn<<"No max prop speed defined, using default \n";
+                gzwarn<<"No motor number defined, using default=zero \n";
                 propellers_[idx].motor_number = 0;
             }
             // inertia tensor (assuming flat disk) expressed in propeller* frame
@@ -297,6 +299,21 @@ void GazeboPropulsion::OnUpdate() {
         gz_std_msgs::ConnectGazeboToRosTopic connect_gazebo_to_ros_topic_msg;
         gzdbg<<"advertised ~/" + kConnectGazeboToRosSubtopic + "\n";
 
+        gazebo::transport::PublisherPtr connect_ros_to_gazebo_topic_pub =
+                node_handle_->Advertise<gz_std_msgs::ConnectRosToGazeboTopic>(
+                    "~/" + kConnectRosToGazeboSubtopic, 1);
+        gz_std_msgs::ConnectRosToGazeboTopic connect_ros_to_gazebo_topic_msg;
+        gzdbg<<"advertised ~/" + kConnectRosToGazeboSubtopic + "\n";
+
+        connect_ros_to_gazebo_topic_msg.set_ros_topic(
+            namespace_ + "/" + propellers_[0].omega_ref_subtopic);
+        connect_ros_to_gazebo_topic_msg.set_gazebo_topic(
+            "~/" + namespace_ + "/" + propellers_[0].omega_ref_subtopic);
+        connect_ros_to_gazebo_topic_msg.set_msgtype(
+            gz_std_msgs::ConnectRosToGazeboTopic::COMMAND_MOTOR_SPEED);
+        connect_ros_to_gazebo_topic_pub->Publish(
+            connect_ros_to_gazebo_topic_msg, true);
+
         for (int idx = 0; idx<num_props_; idx++) {
 
             if(!propellers_[idx].prop_slpstr_pubtopic.empty()){
@@ -325,6 +342,7 @@ void GazeboPropulsion::OnUpdate() {
                 propellers_[idx].omega_ref_sub = node_handle_->Subscribe("~/" + namespace_ + "/" + propellers_[idx].omega_ref_subtopic,
                                                                          &GazeboPropulsion::Propeller::PropSpeedCallbackAlt,
                                                                          &propellers_[idx]);
+                gzdbg<<"subscribing to: "<<"~/" + namespace_ + "/" + propellers_[idx].omega_ref_subtopic<<"\n";
             }
 
             for (int j=0; j<propellers_[idx].n_wind; j++){

@@ -79,14 +79,14 @@
       <plugin filename="librotors_gazebo_multirotor_base_plugin.so" name="multirotor_base_plugin">
         <robotNamespace>${robot_namespace}</robotNamespace>
         <linkName>${robot_namespace}/base_link</linkName>
-        <rotorVelocitySlowdownSim>${rotor_velocity_slowdown_sim}</rotorVelocitySlowdownSim>
+        <!--<rotorVelocitySlowdownSim>${rotor_velocity_slowdown_sim}</rotorVelocitySlowdownSim>-->
       </plugin>
     </gazebo>
   </xacro:macro>
 
   <!-- Rotor joint and link -->
   <xacro:macro name="vertical_rotor_advanced"
-    params="robot_namespace suffix direction x y z parent mass_rotor radius_rotor time_constant_up time_constant_down max_rot_velocity dead_rot_velocity motor_number color use_own_mesh mesh *origin *inertia">
+    params="robot_namespace direction parent mass_rotor radius_rotor motor_number color use_own_mesh mesh *origin *inertia">
 
     <joint name="${robot_namespace}/rotor_${motor_number}_joint" type="continuous">
       <xacro:insert_block name="origin" />
@@ -124,14 +124,14 @@
       </collision>
 
     </link>
-    <gazebo>
+      <!-- <gazebo>
 
-      <!-- changed from original multirotor_base to implement advanced propulsion_plugin -->
+      changed from original multirotor_base to implement advanced propulsion_plugin
 
       <plugin name="${robot_namespace}_${suffix}_propulsion" filename="librotors_gazebo_propulsion_plugin.so">
         <robotNamespace>${robot_namespace}</robotNamespace>
 
-        <!-- changed from original multirotor_base to implement advanced propulsion_plugin
+         changed from original multirotor_base to implement advanced propulsion_plugin
         <jointName>${robot_namespace}/rotor_${motor_number}_joint</jointName>
         <linkName>${robot_namespace}/rotor_${motor_number}</linkName>
         <turningDirection>${direction}</turningDirection>
@@ -146,7 +146,7 @@
         <rollingMomentCoefficient>${rolling_moment_coefficient}</rollingMomentCoefficient>
         <motorSpeedPubTopic>motor_speed/${motor_number}</motorSpeedPubTopic>
         <rotorVelocitySlowdownSim>${rotor_velocity_slowdown_sim}</rotorVelocitySlowdownSim>
-        -->
+
 
         <prop name="rotor_${motor_number}">
           <jointName>${robot_namespace}/rotor_${motor_number}_joint</jointName>
@@ -157,15 +157,15 @@
           <speedRefTopic>gazebo/command/motor_speed</speedRefTopic>
           <motorNumber>${motor_number}</motorNumber>
           <propParamsYAML>$(find rotors_gazebo)/resource/peregrine_propconfig.yaml</propParamsYAML>
-          <tauUp>${time_constant_up}</tauUp>       <!-- first-order system timeconstant rev up [s] -->
-          <tauDown>${time_constant_down}</tauDown>   <!-- first-order system timeconstant rev down [s] -->
-          <tauSpoolUp>${time_constant_up}</tauSpoolUp>        <!-- first-order system timeconstant in dead-zone, i.e between speeds 0 and rdpsDead [s]-->
-          <rdpsDead>1</rdpsDead>    <!-- prop speed dead-zone = 0-rdpsDead [rad/s]-->
-          <rdpsMax>${max_rot_velocity}</rdpsMax> <!-- max prop speed [rad/s]-->
+          <tauUp>${time_constant_up}</tauUp>
+          <tauDown>${time_constant_down}</tauDown>
+          <tauSpoolUp>${time_constant_up}</tauSpoolUp>
+          <rdpsDead>1</rdpsDead>
+          <rdpsMax>${max_rot_velocity}</rdpsMax>
         </prop>
       </plugin>
     </gazebo>
-
+    -->
     <gazebo reference="${robot_namespace}/rotor_${motor_number}">
       <material>Gazebo/${color}</material>
     </gazebo>

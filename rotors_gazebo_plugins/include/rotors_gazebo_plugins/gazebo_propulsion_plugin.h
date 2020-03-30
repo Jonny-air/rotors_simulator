@@ -42,8 +42,8 @@
 #include "VisVectorArray.pb.h"
 #include "WindSpeedBeta.pb.h"
 #include "ConnectGazeboToRosTopic.pb.h"
+#include "ConnectRosToGazeboTopic.pb.h"
 #include "Float32.pb.h"
-#include "CommandMotorSpeed.pb.h"
 #include "vector2d.pb.h"
 
 #include "common.h"
@@ -179,7 +179,8 @@ private:
         }
 
         void PropSpeedCallbackAlt(GzCommandMotorSpeedMsgPtr& ref){
-            omega_ref = (double)ref->motor_speed(this->motor_number);
+            omega_ref = static_cast<double>(ref->motor_speed(motor_number));
+            //gzdbg<<"prop_"<<this->motor_number<<" om_ref:"<<omega_ref<<"\n";
         }
 
         void MotorDyn(){
