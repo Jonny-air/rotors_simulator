@@ -1,0 +1,9 @@
+# Lee position controller parameters
+#position_gain: {x: 5, y: 5, z: 5} #Overshoot increase when value increase
+#velocity_gain: {x: 7.5, y: 7.5, z: 6} #Overshoot increase when value decrease
+#attitude_gain: {x: 2.9, y: 2.9, z: 1.8} #Overshoot increase when value decrease
+#angular_rate_gain: {x: 0.7, y: 0.7, z: 0.7} #Overshoot increase when value decrease
+position_gain: {x: 5, y: 5, z: 10} #Overshoot increase when value increase
+velocity_gain: {x: 7.5, y: 7.5, z: 12} #Overshoot increase when value decrease
+attitude_gain: {x: 2.9, y: 2.9, z: 2} #Overshoot increase when value decrease
+angular_rate_gain: {x: 0.7, y: 0.7, z: 0.55} #Overshoot increase when value decrease

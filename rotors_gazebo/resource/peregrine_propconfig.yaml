@@ -1,10 +1,10 @@
 diameter: 0.3556
-mass: 0.024 #from APC Website
+mass: 0.024 
 
 k_t: -0.0673
 k_t0: 0.112
-k_q: -0.00687 #decreased by a factor of ten
-k_q0: 0.02928 #decreased by a factor of ten
+k_q: -0.00687
+k_q0: 0.02928
 
 rolling_moment_coefficient: 0
 rotor_drag_coefficient: 5.3849e-04

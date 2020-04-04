@@ -1,0 +1,54 @@
+<?xml version="1.0"?>
+
+<launch>
+
+  <!-- ************************ -->
+  <!-- ****** Parameters ****** -->
+  <!-- ************************ -->
+
+  <!-- Control params -->
+  <arg name="odometry_topic_direct" default="odometry_sensor1"/>
+  <arg name="odometry_topic_msf" default="msf_core"/> <!-- Options: odometry_sensor1, ground_truth, msf_core -->
+
+  <!-- Vehicle params -->
+  <arg name="mav_name" default="peregrine"/>
+  <arg name="vehicle_config" default="sim"/>
+
+  <arg name="world_frame_name" default="world"/>
+  <arg name="base_frame_name" default="$(arg mav_name)/base_link"/>
+  <arg name="tool_frame_name" default="$(arg mav_name)/tool"/>
+
+  <group ns="$(arg mav_name)">
+    <!-- ******************************* -->
+    <!-- ***** PX4 SITL Simulation ***** -->
+    <!-- ******************************* -->
+
+    <node pkg="mavros" type="mavros_node" name="mavros" required="true" clear_params="true" output="screen">
+      <param name="fcu_url" value="udp://:14540@127.0.0.1:14557"/>
+      <param name="gcs_url" value=""/>
+      <param name="target_system_id" value="1"/>
+      <param name="target_component_id" value="1"/>
+
+      <param name="mocap/use_pose" value="false"/>
+      <param name="mocap/use_tf" value="true"/>
+      <param name="fcu_protocol" value="v2.0" />
+      <remap from="~mocap/tf" to="$(arg odometry_topic_direct)/transform"/>
+      <remap from="mavros/setpoint_raw/wrench" to="wrench_target"/>
+      <remap from="mavros/setpoint_raw/attitude" to="attitude_target"/>
+      <remap from="mavros/setpoint_raw/local" to="position_target"/>
+      <remap from="mavros/setpoint_raw/attitude_thrust" to="attitude_thrust_target"/>
+      <remap from="mavros/setpoint_raw/tilt_angle_sp" to="tilt_angle_target"/>
+
+      <rosparam command="load" file="$(find mav_startup)/parameters/mavs/peregrine/px4_pluginlists.yaml"/>
+      <rosparam command="load" file="$(find mav_startup)/parameters/mavs/peregrine/px4_config.yaml"/>
+      <param name="capability_group" value="Control" />
+    </node>
+
+    <arg name="est" default="ekf2"/>
+    <env name="PX4_SIM_MODEL" value="peregrine" />           <!-- Müssen wir hier PX4 noch unsere Drohne als Modell mitgeben? -->
+    <env name="PX4_ESTIMATOR" value="$(arg est)" />
+    <node name="sitl" pkg="px4" type="px4" output="screen" args="$(find px4) -s etc/posix-configs/SITL_Peregrine/peregrine" required="true">
+      <param name="capability_group" value="Control" />     <!-- what's this?-->
+    </node>
+  </group>
+</launch>

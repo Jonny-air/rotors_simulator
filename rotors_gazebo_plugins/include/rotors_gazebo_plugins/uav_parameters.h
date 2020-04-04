@@ -140,8 +140,19 @@ struct PropellerParameters {
             const YAML::Node node = YAML::LoadFile(yaml_path);
 
             try{
+                diameter = 0.3556;
+                mass = 0.024;
 
-                READ_PARAM(node, diameter);
+                k_t = -0.0673;
+                k_t0 = 0.112;
+                k_q = -0.00687;
+                k_q0 = 0.02928;
+
+                rolling_moment_coefficient = 0;
+                rotor_drag_coefficient = 5.3849e-04;
+                d_flow = 5;
+
+                /*READ_PARAM(node, diameter);
                 READ_PARAM(node, mass);
                 READ_PARAM(node, k_t);
                 READ_PARAM(node, k_t0);
@@ -150,6 +161,7 @@ struct PropellerParameters {
                 READ_PARAM(node, rolling_moment_coefficient);
                 READ_PARAM(node, rotor_drag_coefficient);
                 READ_PARAM(node, d_flow);
+                */
 
             } catch(const YAML::Exception& ex) {
                 gzerr << ex.what();

@@ -81,6 +81,7 @@ void GazeboMavlinkInterface::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf
   getSdfParam<std::string>(_sdf, "gpsSubTopic", gps_sub_topic_, gps_sub_topic_);
   getSdfParam<std::string>(_sdf, "gpsGtSubTopic", gps_gt_sub_topic_, gps_gt_sub_topic_);
 
+  /*
   bool use_vane = false;
   if (_sdf->HasElement("vaneSubTopic")) {
     vane_sub_topic_ = _sdf->GetElement("vaneSubTopic")->Get<std::string>();
@@ -277,11 +278,13 @@ void GazeboMavlinkInterface::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf
   //gzdbg<<"subscribing to ~/" + namespace_ + gps_gt_sub_topic_ + "_hil"<<std::endl;
   std::cout<<"\33[1m[gazebo_mavlink_interface]\33[0m Subscribing to \33[1;34m" << gps_gt_sub_->GetTopic() << "\33[0m gazebo message\n";
 
+  /*
   if (use_vane) {
     vane_sub_ = node_handle_->Subscribe("~/" + namespace_  + vane_sub_topic_, &GazeboMavlinkInterface::VaneCallback, this);
     //gzdbg<<"subscribing to ~/" + namespace_ + vane_sub_topic_<<std::endl;
     std::cout<<"\33[1m[gazebo_mavlink_interface]\33[0m Subscribing to \33[1;34m" << vane_sub_->GetTopic() << "\33[0m gazebo message\n";
   }
+  */
 
   for (int j=0; j<n_wind; j++) {
       wind[j].wind_sub_ = node_handle_->Subscribe("~/" + namespace_ + "/" + wind[j].wind_topic, &GazeboMavlinkInterface::Wind::Callback, &wind[j]);
@@ -388,6 +391,7 @@ void GazeboMavlinkInterface::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf
   auto worldName = world_->GetName();
 #endif
   model_param(worldName, model_->GetName(), "mavlink_udp_port", mavlink_udp_port_);
+  gzdbg << "connected on udp port " << mavlink_udp_port_ << "\n";  
 
   qgc_addr_ = htonl(INADDR_ANY);
   if (_sdf->HasElement("qgc_addr")) {
@@ -983,6 +987,8 @@ void GazeboMavlinkInterface::OpticalFlowCallback(OpticalFlowPtr& opticalFlow_mes
   send_mavlink_message(&msg);
 }
 
+/*
+
 void GazeboMavlinkInterface::VaneCallback(VanePtr& vane_message) {
 
   mavlink_hil_extended_t hil_extended_msg;
@@ -1009,8 +1015,9 @@ void GazeboMavlinkInterface::VaneCallback(VanePtr& vane_message) {
   /*
   gzdbg<<"alpha: "<<vane_message->x()<<"\n";
   gzdbg<<"beta: "<<vane_message->y()<<"\n";
-  */
+
 }
+*/
 
 void GazeboMavlinkInterface::GpsCallback(GpsPtr& gps_msg) {
   // fill HIL GPS Mavlink msg

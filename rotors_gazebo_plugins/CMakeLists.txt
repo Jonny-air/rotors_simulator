@@ -376,7 +376,6 @@ if (NOT NO_ROS)
 endif()
 list(APPEND targets_to_install rotors_gazebo_magnetometer_plugin)
 
-set(BUILD_MAVLINK_INTERFACE_PLUGIN FALSE)
 #================================= MAVLINK INTERFACE PLUGIN =====================================//
 
 if(BUILD_MAVLINK_INTERFACE_PLUGIN)

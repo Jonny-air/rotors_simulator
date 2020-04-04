@@ -103,8 +103,8 @@ typedef const boost::shared_ptr<const gazebo::msgs::Vector2d> VanePtr;
 
 // This just proxies the motor commands from command/motor_speed to the single motors via internal
 // ConsPtr passing, such that the original commands don't have to go n_motors-times over the wire.
-static const std::string kDefaultMotorVelocityReferencePubTopic = "/gazebo/command/motor_speed_old";
-static const std::string kDefaultActuatorsReferencePubTopic = "/gazebo/command/motor_speed";
+static const std::string kDefaultMotorVelocityReferencePubTopic = "/gazebo/command/motor_speed";
+static const std::string kDefaultActuatorsReferencePubTopic = "/gazebo/command/motor_speed_old";
 static const std::string kDefaultImuTopic = "/imu";
 static const std::string kDefaultLidarTopic = "/link/lidar";
 static const std::string kDefaultOpticalFlowTopic = "/px4flow/link/opticalFlow";
