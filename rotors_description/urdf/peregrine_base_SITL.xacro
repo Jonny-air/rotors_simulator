@@ -22,32 +22,23 @@
 <robot name="peregrine" xmlns:xacro="http://ros.org/wiki/xacro">
   <xacro:include filename="$(find rotors_description)/urdf/component_snippets.xacro" />
   <!-- Instantiate peregrine "mechanics" -->
-  <xacro:include filename="$(find rotors_description)/urdf/peregrineB.xacro" />
+  <xacro:include filename="$(find rotors_description)/urdf/peregrine.xacro" />
 
-  <!-- Instantiate a controller. -->
+  <!-- Instantiate a controller.
   <xacro:controller_plugin_macro namespace="${namespace}" imu_sub_topic="imu" />
-
-
-  <xacro:default_camera
-    namespace="${namespace}"
-    parent_link="${namespace}/base_link"
-    camera_suffix="cam_front">
-    <origin xyz="0.35 0 0.11" rpy="0 0.2 0" />
-  </xacro:default_camera>
-
+  -->
 
   <!-- Instantiate a ROS message interface -->
-  <!-- <xacro:ros_interface_plugin_macro namespace="${namespace}" /> -->
-
-  <xacro:if value="$(arg enable_mavlink_interface)">
-    <xacro:default_mavlink_interface namespace="${namespace}" imu_sub_topic="imu" rotor_count="6" />
-  </xacro:if>
+  <!-- <xacro:ros_interface_plugin_macro namespace="${namespace}" />-->
 
   <xacro:default_imu namespace="${namespace}" parent_link="${namespace}/base_link" />
+  <xacro:default_gps namespace="${namespace}" parent_link="${namespace}/base_link" />
 
   <xacro:if value="$(arg enable_ground_truth)">
     <xacro:ground_truth_imu_and_odometry namespace="${namespace}" parent_link="${namespace}/base_link" />
   </xacro:if>
+
+
 
   <xacro:if value="$(arg enable_logging)">
     <!-- Instantiate a logger -->

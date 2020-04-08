@@ -33,7 +33,7 @@ pygame.display.flip()
 class stick_state(object):
     def __init__(self, name, stick, key_up, key_down, spring_back=True, incr_val=0.2):
         self.name = name                            # The name of the stick
-        self.stick = stick                          # The stick on the joystick that this stick maps to 
+        self.stick = stick                          # The stick on the joystick that this stick maps to
         self.key_up = key_up                        # The key on the keyboard that maps to this stick increment
         self.key_down = key_down                    # The key on the keyboard that maps to this stick decrement
         self.spring_back = spring_back              # Does the stick spring back to center on release?
@@ -49,8 +49,8 @@ class stick_state(object):
         self.val = self.zero                        # Stick value at initialization at zero position
         self.emit_val = int(self.val)
         self.display_ready = False                  # Whether optional display params have been set
-        self.display_height = 0                     # Height on the display screen 
-        self.display_width = 0                      # Width on the display screen 
+        self.display_height = 0                     # Height on the display screen
+        self.display_width = 0                      # Width on the display screen
         self.display_hor = True                     # Whether the display bar is horizontal, else vertical
         self.display_bar_g = []
         self.display_bar_b = []
@@ -103,7 +103,7 @@ class stick_state(object):
             filename = os.path.join(dir, '../media/vg.png')
             self.display_bar_g = pygame.image.load(filename)
             filename = os.path.join(dir, '../media/vb.png')
-            self.display_bar_b = pygame.image.load(filename)    
+            self.display_bar_b = pygame.image.load(filename)
         self.display_ready = True
 
     def display(self):

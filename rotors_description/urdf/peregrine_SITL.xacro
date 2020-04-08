@@ -23,7 +23,6 @@
   <!-- Properties -->
   <xacro:property name="namespace" value="$(arg namespace)" />
 
-
   <!-- Slows down rotor vel in simulation s.t. no aliasing -->
   <xacro:property name="rotor_velocity_slowdown_sim" value="10" />
 
@@ -53,6 +52,18 @@
   <xacro:property name="rotor_drag_coefficient" value="12.06428e-05" />
   <xacro:property name="rolling_moment_coefficient" value="0.000001" />
 
+  <xacro:property name="dead_rot_velocity" value="1" />
+
+
+  <!-- ############### -->
+  <!-- HIL Properties  -->
+  <!-- ############### -->
+  <xacro:property name="serial_enabled" value="false" />
+  <xacro:property name="serial_device" value="/dev/ttyACM0" />
+  <xacro:property name="enable_hil" value="false" />
+
+
+
   <!-- Property Blocks -->
   <xacro:property name="body_inertia">
     <inertia ixx="0.19225" ixy="0.0" ixz="0.0" iyy="0.18493" iyz="0.0" izz="0.34422" /> <!-- [kg m^2] [kg m^2] [kg m^2] [kg m^2] [kg m^2] [kg m^2] -->
@@ -81,6 +92,84 @@
   <!-- Instantiate rotors -->
 
   <gazebo>
+    <plugin name='gazebo_mavlink_interface' filename='librotors_gazebo_mavlink_interface.so'>
+      <robotNamespace>${namespace}</robotNamespace>
+      <protocol_version>2.0</protocol_version>
+      <imuSubTopic>/imu</imuSubTopic>
+      <imu_rate>100</imu_rate>
+      <gpsSubTopic>/gps_hil</gpsSubTopic>
+      <gpsGtSubTopic>/gps_gt</gpsGtSubTopic>
+      <lidarSubTopic></lidarSubTopic>
+      <opticalFlowSubTopic></opticalFlowSubTopic>
+      <motorSpeedCommandPubTopic>/gazebo/command/motor_speed</motorSpeedCommandPubTopic>
+      <actuatorsPubTopic>/gazebo/command/actuator_speed</actuatorsPubTopic>
+
+      <mavlink_addr>INADDR_ANY</mavlink_addr>
+      <mavlink_udp_port>14560</mavlink_udp_port>
+
+      <baudRate>921600</baudRate>
+      <qgc_addr>INADDR_ANY</qgc_addr>
+      <qgc_udp_port>14556</qgc_udp_port>
+
+      <hil_mode>0</hil_mode>
+      <hil_state_level>false</hil_state_level>
+      <enable_lockstep>false</enable_lockstep>
+
+      <use_tcp>true</use_tcp>
+      <mavlink_tcp_port>4560</mavlink_tcp_port>
+
+      <control_channels>
+        <channel name='rotor1'>
+          <input_index>0</input_index>
+          <input_offset>0</input_offset>
+          <input_scaling>${max_rot_velocity}</input_scaling>   <!-- max rad/s  [rad/s]-->
+          <zero_position_disarmed>0</zero_position_disarmed>
+          <zero_position_armed>0</zero_position_armed>
+          <joint_control_type>gz_msg</joint_control_type>
+        </channel>
+        <channel name='rotor2'>
+          <input_index>1</input_index>
+          <input_offset>0</input_offset>
+          <input_scaling>${max_rot_velocity}</input_scaling>
+          <zero_position_disarmed>0</zero_position_disarmed>
+          <zero_position_armed>0</zero_position_armed>
+          <joint_control_type>gz_msg</joint_control_type>
+        </channel>
+        <channel name='rotor3'>
+          <input_index>2</input_index>
+          <input_offset>0</input_offset>
+          <input_scaling>${max_rot_velocity}</input_scaling>
+          <zero_position_disarmed>0</zero_position_disarmed>
+          <zero_position_armed>0</zero_position_armed>
+          <joint_control_type>gz_msg</joint_control_type>
+        </channel>
+        <channel name='rotor4'>
+          <input_index>3</input_index>
+          <input_offset>0</input_offset>
+          <input_scaling>${max_rot_velocity}</input_scaling>
+          <zero_position_disarmed>0</zero_position_disarmed>
+          <zero_position_armed>0</zero_position_armed>
+          <joint_control_type>gz_msg</joint_control_type>
+        </channel>
+        <channel name='rotor5'>
+          <input_index>5</input_index>
+          <input_offset>0</input_offset>
+          <input_scaling>${max_rot_velocity}</input_scaling>
+          <zero_position_disarmed>0</zero_position_disarmed>
+          <zero_position_armed>0</zero_position_armed>
+          <joint_control_type>gz_msg</joint_control_type>
+        </channel>
+        <channel name='rotor6'>
+          <input_index>5</input_index>
+          <input_offset>0</input_offset>
+          <input_scaling>${max_rot_velocity}</input_scaling>
+          <zero_position_disarmed>0</zero_position_disarmed>
+          <zero_position_armed>0</zero_position_armed>
+          <joint_control_type>gz_msg</joint_control_type>
+        </channel>
+      </control_channels>
+    </plugin>
+
 
     <plugin name="${namespace}_propulsion" filename="librotors_gazebo_propulsion_plugin.so">
       <robotNamespace>${namespace}</robotNamespace>
@@ -269,5 +358,5 @@
     <origin xyz="${cos30*arm_length} -${sin30*arm_length} ${rotor_offset_top}" rpy="0 0 0" />
     <xacro:insert_block name="rotor_inertia" />
   </xacro:vertical_rotor_advanced>
--->
+
 </robot>
