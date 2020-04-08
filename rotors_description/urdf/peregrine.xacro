@@ -58,9 +58,9 @@
   <!-- ############### -->
   <!-- HIL Properties  -->
   <!-- ############### -->
-  <xacro:property name="serial_enabled" value="true" />
+  <xacro:property name="serial_enabled" value="false" />
   <xacro:property name="serial_device" value="/dev/ttyACM0" />
-  <xacro:property name="enable_hil" value="true" />
+  <xacro:property name="enable_hil" value="false" />
 
 
 
@@ -96,26 +96,28 @@
       <robotNamespace>${namespace}</robotNamespace>
       <protocol_version>2.0</protocol_version>
       <imuSubTopic>/imu</imuSubTopic>
-      <imu_rate>250</imu_rate>
-      <gpsSubTopic>/gps</gpsSubTopic>
+      <imu_rate>100</imu_rate>
+      <gpsSubTopic>/gps_hil</gpsSubTopic>
       <gpsGtSubTopic>/gps_gt</gpsGtSubTopic>
       <lidarSubTopic></lidarSubTopic>
       <opticalFlowSubTopic></opticalFlowSubTopic>
+      <motorSpeedCommandPubTopic>/gazebo/command/motor_speed</motorSpeedCommandPubTopic>
+      <actuatorsPubTopic>/gazebo/command/actuator_speed</actuatorsPubTopic>
+
       <mavlink_addr>INADDR_ANY</mavlink_addr>
       <mavlink_udp_port>14560</mavlink_udp_port>
 
-      <serialEnabled>true</serialEnabled>
-      <serialDevice>${serial_device}</serialDevice> <!-- Port wo pixhawk angeschlossen ist-->
-      <qgc_udp_port>14550</qgc_udp_port>
-      <hil_mode>${enable_hil}</hil_mode>
-
       <baudRate>921600</baudRate>
       <qgc_addr>INADDR_ANY</qgc_addr>
+      <qgc_udp_port>14556</qgc_udp_port>
+
+      <hil_mode>0</hil_mode>
       <hil_state_level>false</hil_state_level>
       <enable_lockstep>false</enable_lockstep>
-      <use_tcp>false</use_tcp>
-      <motorSpeedCommandPubTopic>/gazebo/command/motor_speed_old</motorSpeedCommandPubTopic>
-      <actuatorsPubTopic>/gazebo/command/motor_speed</actuatorsPubTopic>
+
+      <use_tcp>true</use_tcp>
+      <mavlink_tcp_port>4560</mavlink_tcp_port>
+
       <control_channels>
         <channel name='rotor1'>
           <input_index>0</input_index>

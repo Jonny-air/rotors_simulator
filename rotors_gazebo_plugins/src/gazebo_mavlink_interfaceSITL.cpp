@@ -11,7 +11,6 @@
  * You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
-
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -81,8 +80,7 @@ void GazeboMavlinkInterface::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf
   getSdfParam<std::string>(_sdf, "gpsSubTopic", gps_sub_topic_, gps_sub_topic_);
   getSdfParam<std::string>(_sdf, "gpsGtSubTopic", gps_gt_sub_topic_, gps_gt_sub_topic_);
 
-  /*
-  bool use_vane = false;
+  /*bool use_vane = false;
   if (_sdf->HasElement("vaneSubTopic")) {
     vane_sub_topic_ = _sdf->GetElement("vaneSubTopic")->Get<std::string>();
     use_vane = true;
@@ -278,8 +276,7 @@ void GazeboMavlinkInterface::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf
   //gzdbg<<"subscribing to ~/" + namespace_ + gps_gt_sub_topic_ + "_hil"<<std::endl;
   std::cout<<"\33[1m[gazebo_mavlink_interface]\33[0m Subscribing to \33[1;34m" << gps_gt_sub_->GetTopic() << "\33[0m gazebo message\n";
 
-  /*
-  if (use_vane) {
+  /*if (use_vane) {
     vane_sub_ = node_handle_->Subscribe("~/" + namespace_  + vane_sub_topic_, &GazeboMavlinkInterface::VaneCallback, this);
     //gzdbg<<"subscribing to ~/" + namespace_ + vane_sub_topic_<<std::endl;
     std::cout<<"\33[1m[gazebo_mavlink_interface]\33[0m Subscribing to \33[1;34m" << vane_sub_->GetTopic() << "\33[0m gazebo message\n";
@@ -350,6 +347,12 @@ void GazeboMavlinkInterface::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf
     serial_enabled_ = _sdf->GetElement("serialEnabled")->Get<bool>();
   }
 
+  if (!serial_enabled_ && _sdf->HasElement("use_tcp"))
+  {
+    use_tcp_ = _sdf->GetElement("use_tcp")->Get<bool>();
+  }
+  gzmsg << "Connecting to PX4 SITL using " << (serial_enabled_ ? "serial" : (use_tcp_ ? "TCP" : "UDP")) << "\n";
+
   if(serial_enabled_) {
     // Set up serial interface
     if(_sdf->HasElement("serialDevice"))
@@ -385,13 +388,18 @@ void GazeboMavlinkInterface::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf
   if (_sdf->HasElement("mavlink_udp_port")) {
     mavlink_udp_port_ = _sdf->GetElement("mavlink_udp_port")->Get<int>();
   }
+
 #if GAZEBO_MAJOR_VERSION >= 9
   auto worldName = world_->Name();
 #else
   auto worldName = world_->GetName();
 #endif
   model_param(worldName, model_->GetName(), "mavlink_udp_port", mavlink_udp_port_);
-  gzdbg << "connected on udp port " << mavlink_udp_port_ << "\n";
+
+  if (_sdf->HasElement("mavlink_tcp_port")) {
+    mavlink_tcp_port_ = _sdf->GetElement("mavlink_tcp_port")->Get<int>();
+  }
+  model_param(worldName, model_->GetName(), "mavlink_tcp_port", mavlink_tcp_port_);
 
   qgc_addr_ = htonl(INADDR_ANY);
   if (_sdf->HasElement("qgc_addr")) {
@@ -427,11 +435,108 @@ void GazeboMavlinkInterface::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf
   }
 
   else {
-    _myaddr.sin_addr.s_addr = htonl(INADDR_ANY);
-    // Let the OS pick the port
-    _myaddr.sin_port = htons(0);
-    _srcaddr.sin_addr.s_addr = mavlink_addr_;
-    _srcaddr.sin_port = htons(mavlink_udp_port_);
+    memset((char *)&remote_simulator_addr_, 0, sizeof(remote_simulator_addr_));
+    remote_simulator_addr_.sin_family = AF_INET;
+    remote_simulator_addr_len_ = sizeof(remote_simulator_addr_);
+
+    memset((char *)&local_simulator_addr_, 0, sizeof(local_simulator_addr_));
+    local_simulator_addr_.sin_family = AF_INET;
+    local_simulator_addr_len_ = sizeof(local_simulator_addr_);
+
+    if (use_tcp_) {
+
+      local_simulator_addr_.sin_addr.s_addr = htonl(mavlink_addr_);
+      local_simulator_addr_.sin_port = htons(mavlink_tcp_port_);
+
+      if ((simulator_socket_fd_ = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
+        gzerr << "Creating TCP socket failed: " << strerror(errno) << ", aborting\n";
+        abort();
+      }
+
+      int yes = 1;
+      int result = setsockopt(simulator_socket_fd_, IPPROTO_TCP, TCP_NODELAY, &yes, sizeof(yes));
+      if (result != 0) {
+        gzerr << "setsockopt failed: " << strerror(errno) << ", aborting\n";
+        abort();
+      }
+
+      struct linger nolinger {};
+      nolinger.l_onoff = 1;
+      nolinger.l_linger = 0;
+
+      result = setsockopt(simulator_socket_fd_, SOL_SOCKET, SO_LINGER, &nolinger, sizeof(nolinger));
+      if (result != 0) {
+        gzerr << "setsockopt failed: " << strerror(errno) << ", aborting\n";
+        abort();
+      }
+
+      // The socket reuse is necessary for reconnecting to the same address
+      // if the socket does not close but gets stuck in TIME_WAIT. This can happen
+      // if the server is suddenly closed, for example, if the robot is deleted in gazebo.
+      int socket_reuse = 1;
+      result = setsockopt(simulator_socket_fd_, SOL_SOCKET, SO_REUSEADDR, &socket_reuse, sizeof(socket_reuse));
+      if (result != 0) {
+        gzerr << "setsockopt failed: " << strerror(errno) << ", aborting\n";
+        abort();
+      }
+
+      // Same as above but for a given port
+      result = setsockopt(simulator_socket_fd_, SOL_SOCKET, SO_REUSEPORT, &socket_reuse, sizeof(socket_reuse));
+      if (result != 0) {
+        gzerr << "setsockopt failed: " << strerror(errno) << ", aborting\n";
+        abort();
+      }
+
+      // set socket to non-blocking
+      result = fcntl(simulator_socket_fd_, F_SETFL, O_NONBLOCK);
+      if (result == -1) {
+        gzerr << "setting socket to non-blocking failed: " << strerror(errno) << ", aborting\n";
+        abort();
+      }
+
+      if (bind(simulator_socket_fd_, (struct sockaddr *)&local_simulator_addr_, local_simulator_addr_len_) < 0) {
+        gzerr << "bind failed: " << strerror(errno) << ", aborting\n";
+        abort();
+      }
+
+      errno = 0;
+      if (listen(simulator_socket_fd_, 0) < 0) {
+        gzerr << "listen failed: " << strerror(errno) << ", aborting\n";
+        abort();
+      }
+
+      memset(fds_, 0, sizeof(fds_));
+      fds_[LISTEN_FD].fd = simulator_socket_fd_;
+      fds_[LISTEN_FD].events = POLLIN; // only listens for new connections on tcp
+
+    } else {
+      remote_simulator_addr_.sin_addr.s_addr = mavlink_addr_;
+      remote_simulator_addr_.sin_port = htons(mavlink_udp_port_);
+
+      local_simulator_addr_.sin_addr.s_addr = htonl(INADDR_ANY);
+      local_simulator_addr_.sin_port = htons(0);
+
+      if ((simulator_socket_fd_ = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
+        gzerr << "Creating UDP socket failed: " << strerror(errno) << ", aborting\n";
+        abort();
+      }
+
+      // set socket to non-blocking
+      int result = fcntl(simulator_socket_fd_, F_SETFL, O_NONBLOCK);
+      if (result == -1) {
+        gzerr << "setting socket to non-blocking failed: " << strerror(errno) << ", aborting\n";
+        abort();
+      }
+
+      if (bind(simulator_socket_fd_, (struct sockaddr *)&local_simulator_addr_, local_simulator_addr_len_) < 0) {
+        gzerr << "bind failed: " << strerror(errno) << ", aborting\n";
+        abort();
+      }
+
+      memset(fds_, 0, sizeof(fds_));
+      fds_[CONNECTION_FD].fd = simulator_socket_fd_;
+      fds_[CONNECTION_FD].events = POLLIN | POLLOUT; // read/write
+    }
   }
 
   _addrlen = sizeof(_srcaddr);
@@ -595,7 +700,13 @@ void GazeboMavlinkInterface::send_mavlink_message(const mavlink_message_t *messa
             dest_addr.sin_port = htons(destination_port);
         }
 
-        ssize_t len = sendto(_fd, buffer, packetlen, 0, (struct sockaddr *)&_srcaddr, sizeof(_srcaddr));
+        size_t len;
+
+        if (use_tcp_) {
+          len = send(fds_[CONNECTION_FD].fd, buffer, packetlen, 0);
+        } else {
+          len = sendto(fds_[CONNECTION_FD].fd, buffer, packetlen, 0, (struct sockaddr *)&_srcaddr, sizeof(_srcaddr));
+        }
 
         if (len <= 0)
         {
@@ -987,9 +1098,10 @@ void GazeboMavlinkInterface::OpticalFlowCallback(OpticalFlowPtr& opticalFlow_mes
   send_mavlink_message(&msg);
 }
 
-/*
 
+/*
 void GazeboMavlinkInterface::VaneCallback(VanePtr& vane_message) {
+
 
   mavlink_hil_extended_t hil_extended_msg;
 
@@ -1015,7 +1127,6 @@ void GazeboMavlinkInterface::VaneCallback(VanePtr& vane_message) {
   /*
   gzdbg<<"alpha: "<<vane_message->x()<<"\n";
   gzdbg<<"beta: "<<vane_message->y()<<"\n";
-
 }
 */
 

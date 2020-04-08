@@ -47,7 +47,7 @@
     <arg name="est" default="ekf2"/>
     <env name="PX4_SIM_MODEL" value="peregrine" />           <!-- Müssen wir hier PX4 noch unsere Drohne als Modell mitgeben? -->
     <env name="PX4_ESTIMATOR" value="$(arg est)" />
-    <node name="sitl" pkg="px4" type="px4" output="screen" args="$(find px4) -s etc/posix-configs/SITL_Peregrine/peregrine" required="true">
+    <node name="sitl" pkg="px4" type="px4" output="screen" args="$(find px4)/ROMFS/px4fmu_common -s etc/init.d/rc.peregrine -i 0 -d" required="true">
       <param name="capability_group" value="Control" />     <!-- what's this?-->
     </node>
   </group>
