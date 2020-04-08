@@ -145,8 +145,8 @@ struct PropellerParameters {
 
                 k_t = -0.0673;
                 k_t0 = 0.112;
-                k_q = -0.00687;
-                k_q0 = 0.02928;
+                k_q = -0.0687;
+                k_q0 = 0.2928;
 
                 rolling_moment_coefficient = 0;
                 rotor_drag_coefficient = 5.3849e-04;

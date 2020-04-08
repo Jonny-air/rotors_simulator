@@ -74,7 +74,7 @@
       </collision>
     </link>
 
-    <!-- attach multirotor_base_plugin to the base_link -->
+    <!-- attach multirotor_base_plugin to the base_link
     <gazebo>
       <plugin filename="librotors_gazebo_multirotor_base_plugin.so" name="multirotor_base_plugin">
         <robotNamespace>${robot_namespace}</robotNamespace>
@@ -82,7 +82,9 @@
         <rotorVelocitySlowdownSim>${rotor_velocity_slowdown_sim}</rotorVelocitySlowdownSim>
       </plugin>
     </gazebo>
+    -->
   </xacro:macro>
+
 
   <!-- Rotor joint and link -->
   <xacro:macro name="vertical_rotor_advanced"

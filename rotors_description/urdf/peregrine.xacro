@@ -24,7 +24,7 @@
   <xacro:property name="namespace" value="$(arg namespace)" />
 
 
-  <!-- Slows down rotor vel in simulation s.t. no aliasing -->
+  <!-- What's this? -->
   <xacro:property name="rotor_velocity_slowdown_sim" value="10" />
 
   <xacro:property name="use_mesh_file" value="true" />
@@ -32,21 +32,32 @@
 
   <!-- Params to be adjusted from firefly to peregrine -->
   <xacro:property name="mass" value="4.6" /> <!-- [kg] -->
-  <xacro:property name="body_width" value="0.4" /> <!-- [m] -->
-  <xacro:property name="body_height" value="0.4" /> <!-- [m] -->
-  <xacro:property name="mass_rotor" value="0.033" /> <!-- [kg] -->
-  <xacro:property name="arm_length" value="0.42" /> <!-- [m] -->
+  <xacro:property name="body_width" value="0.3" /> <!-- [m] -->
+  <xacro:property name="body_height" value="0.3" /> <!-- [m] -->
+  <xacro:property name="mass_rotor" value="0.008" /> <!-- [kg] -->
+  <xacro:property name="arm_length" value="0.4" /> <!-- [m] -->
+
+  <!-- this moight cause problems because negative -->
   <xacro:property name="rotor_offset_top" value="-0.05" /> <!-- [m] -->
+
   <xacro:property name="radius_rotor" value="0.1778" /> <!-- [m] -->
 
+  <xacro:property name="motor_constant" value="4.0879e-5" /> <!-- [kg m/s^2] -->
+  <xacro:property name="moment_constant" value="0.0247" /> <!-- [m] -->
+
   <xacro:property name="time_constant_up" value="0.05" /> <!-- [s] -->
-  <xacro:property name="time_constant_down" value="0.15" /> <!-- [s] -->
+  <xacro:property name="time_constant_down" value="0.1" /> <!-- [s] -->
 
   <xacro:property name="max_rot_velocity" value="838" /> <!-- [rad/s] euals 8000rpm -->
-  <xacro:property name="dead_rot_velocity" value="1" />
 
   <xacro:property name="sin30" value="0.5" />
   <xacro:property name="cos30" value="0.866025403784" />
+
+  <xacro:property name="rotor_drag_coefficient" value="12.06428e-05" />
+  <xacro:property name="rolling_moment_coefficient" value="0.000001" />
+  <!-- <xacro:property name="length_rod" value="1.45" /> [m] -->
+  <!-- <xacro:property name="diameter_rod" value="0.004" /> [m] -->
+  <!-- <xacro:property name="diameter_ball" value="0.11" />  [m] -->
 
   <!-- Property Blocks -->
   <xacro:property name="body_inertia">
@@ -59,7 +70,7 @@
   </xacro:property>
 
   <!-- Included URDF Files -->
-  <xacro:include filename="$(find rotors_description)/urdf/multirotor_base_advanced.xacro" />
+  <xacro:include filename="$(find rotors_description)/urdf/multirotor_base.xacro" />
 
   <!-- Instantiate multirotor_base_macro once -->
   <xacro:multirotor_base_macro
@@ -74,195 +85,134 @@
   </xacro:multirotor_base_macro>
 
   <!-- Instantiate rotors -->
-
-  <gazebo>
-
-    <plugin name="${namespace}_propulsion" filename="librotors_gazebo_propulsion_plugin.so">
-      <robotNamespace>${namespace}</robotNamespace>
-
-        <prop name="rotor_0">
-          <jointName>${namespace}/rotor_0_joint</jointName>
-          <linkNameParent>${namespace}/rotor_0</linkNameParent>  <!-- eventuell namespace/rotor_${motor_number} -->
-          <cp>${cos30*arm_length} ${sin30*arm_length} ${rotor_offset_top}</cp>
-          <axisPosRot>0 0 1</axisPosRot>
-          <turnDir>ccw</turnDir>
-          <speedRefTopic>gazebo/command/motor_speed</speedRefTopic>
-          <motorNumber>0</motorNumber>
-          <propParamsYAML>$(find rotors_gazebo)/resource/peregrine_propconfig.yaml</propParamsYAML>
-          <tauUp>${time_constant_up}</tauUp>       <!-- first-order system timeconstant rev up [s] -->
-          <tauDown>${time_constant_down}</tauDown>   <!-- first-order system timeconstant rev down [s] -->
-          <tauSpoolUp>${time_constant_up}</tauSpoolUp>        <!-- first-order system timeconstant in dead-zone, i.e between speeds 0 and rdpsDead [s]-->
-          <rdpsDead>1</rdpsDead>    <!-- prop speed dead-zone = 0-rdpsDead [rad/s]-->
-          <rdpsMax>${max_rot_velocity}</rdpsMax> <!-- max prop speed [rad/s]-->
-        </prop>
-
-        <prop name="rotor_1">
-          <jointName>${namespace}/rotor_1_joint</jointName>
-          <linkNameParent>${namespace}/rotor_1</linkNameParent>  <!-- eventuell namespace/rotor_${motor_number} -->
-          <cp>0 ${arm_length} ${rotor_offset_top}</cp>
-          <axisPosRot>0 0 -1</axisPosRot>
-          <turnDir>cw</turnDir>
-          <speedRefTopic>gazebo/command/motor_speed</speedRefTopic>
-          <motorNumber>1</motorNumber>
-          <propParamsYAML>$(find rotors_gazebo)/resource/peregrine_propconfig.yaml</propParamsYAML>
-          <tauUp>${time_constant_up}</tauUp>       <!-- first-order system timeconstant rev up [s] -->
-          <tauDown>${time_constant_down}</tauDown>   <!-- first-order system timeconstant rev down [s] -->
-          <tauSpoolUp>${time_constant_up}</tauSpoolUp>        <!-- first-order system timeconstant in dead-zone, i.e between speeds 0 and rdpsDead [s]-->
-          <rdpsDead>1</rdpsDead>    <!-- prop speed dead-zone = 0-rdpsDead [rad/s]-->
-          <rdpsMax>${max_rot_velocity}</rdpsMax> <!-- max prop speed [rad/s]-->
-        </prop>
-
-        <prop name="rotor_2">
-          <jointName>${namespace}/rotor_2_joint</jointName>
-          <linkNameParent>${namespace}/rotor_2</linkNameParent>  <!-- eventuell namespace/rotor_${motor_number} -->
-          <cp>-${cos30*arm_length} ${sin30*arm_length} ${rotor_offset_top}</cp>
-          <axisPosRot>0 0 1</axisPosRot>
-          <turnDir>ccw</turnDir>
-          <speedRefTopic>gazebo/command/motor_speed</speedRefTopic>
-          <motorNumber>2</motorNumber>
-          <propParamsYAML>$(find rotors_gazebo)/resource/peregrine_propconfig.yaml</propParamsYAML>
-          <tauUp>${time_constant_up}</tauUp>       <!-- first-order system timeconstant rev up [s] -->
-          <tauDown>${time_constant_down}</tauDown>   <!-- first-order system timeconstant rev down [s] -->
-          <tauSpoolUp>${time_constant_up}</tauSpoolUp>        <!-- first-order system timeconstant in dead-zone, i.e between speeds 0 and rdpsDead [s]-->
-          <rdpsDead>1</rdpsDead>    <!-- prop speed dead-zone = 0-rdpsDead [rad/s]-->
-          <rdpsMax>${max_rot_velocity}</rdpsMax> <!-- max prop speed [rad/s]-->
-        </prop>
-
-        <prop name="rotor_3">
-          <jointName>${namespace}/rotor_3_joint</jointName>
-          <linkNameParent>${namespace}/rotor_3</linkNameParent>  <!-- eventuell namespace/rotor_${motor_number} -->
-          <cp>-${cos30*arm_length} -${sin30*arm_length} ${rotor_offset_top}</cp>
-          <axisPosRot>0 0 -1</axisPosRot>
-          <turnDir>cw</turnDir>
-          <speedRefTopic>gazebo/command/motor_speed</speedRefTopic>
-          <motorNumber>3</motorNumber>
-          <propParamsYAML>$(find rotors_gazebo)/resource/peregrine_propconfig.yaml</propParamsYAML>
-          <tauUp>${time_constant_up}</tauUp>       <!-- first-order system timeconstant rev up [s] -->
-          <tauDown>${time_constant_down}</tauDown>   <!-- first-order system timeconstant rev down [s] -->
-          <tauSpoolUp>${time_constant_up}</tauSpoolUp>        <!-- first-order system timeconstant in dead-zone, i.e between speeds 0 and rdpsDead [s]-->
-          <rdpsDead>1</rdpsDead>    <!-- prop speed dead-zone = 0-rdpsDead [rad/s]-->
-          <rdpsMax>${max_rot_velocity}</rdpsMax> <!-- max prop speed [rad/s]-->
-        </prop>
-
-        <prop name="rotor_4">
-          <jointName>${namespace}/rotor_4_joint</jointName>
-          <linkNameParent>${namespace}/rotor_4</linkNameParent>  <!-- eventuell namespace/rotor_${motor_number} -->
-          <cp>0 -${arm_length} ${rotor_offset_top}</cp>
-          <axisPosRot>0 0 1</axisPosRot>
-          <turnDir>ccw</turnDir>
-          <speedRefTopic>gazebo/command/motor_speed</speedRefTopic>
-          <motorNumber>4</motorNumber>
-          <propParamsYAML>$(find rotors_gazebo)/resource/peregrine_propconfig.yaml</propParamsYAML>
-          <tauUp>${time_constant_up}</tauUp>       <!-- first-order system timeconstant rev up [s] -->
-          <tauDown>${time_constant_down}</tauDown>   <!-- first-order system timeconstant rev down [s] -->
-          <tauSpoolUp>${time_constant_up}</tauSpoolUp>        <!-- first-order system timeconstant in dead-zone, i.e between speeds 0 and rdpsDead [s]-->
-          <rdpsDead>1</rdpsDead>    <!-- prop speed dead-zone = 0-rdpsDead [rad/s]-->
-          <rdpsMax>${max_rot_velocity}</rdpsMax> <!-- max prop speed [rad/s]-->
-        </prop>
-
-        <prop name="rotor_5">
-          <jointName>${namespace}/rotor_5_joint</jointName>
-          <linkNameParent>${namespace}/rotor_5</linkNameParent>  <!-- eventuell namespace/rotor_${motor_number} -->
-          <cp>${cos30*arm_length} -${sin30*arm_length} ${rotor_offset_top}</cp>
-          <axisPosRot>0 0 -1</axisPosRot>
-          <turnDir>cw</turnDir>
-          <speedRefTopic>gazebo/command/motor_speed</speedRefTopic>
-          <motorNumber>5</motorNumber>
-          <propParamsYAML>$(find rotors_gazebo)/resource/peregrine_propconfig.yaml</propParamsYAML>
-          <tauUp>${time_constant_up}</tauUp>       <!-- first-order system timeconstant rev up [s] -->
-          <tauDown>${time_constant_down}</tauDown>   <!-- first-order system timeconstant rev down [s] -->
-          <tauSpoolUp>${time_constant_up}</tauSpoolUp>        <!-- first-order system timeconstant in dead-zone, i.e between speeds 0 and rdpsDead [s]-->
-          <rdpsDead>1</rdpsDead>    <!-- prop speed dead-zone = 0-rdpsDead [rad/s]-->
-          <rdpsMax>${max_rot_velocity}</rdpsMax> <!-- max prop speed [rad/s]-->
-        </prop>
-
-    </plugin>
-  </gazebo>
-
-
-
-  <xacro:vertical_rotor_advanced
+  <xacro:vertical_rotor
     robot_namespace="${namespace}"
+    suffix="front_left"
     direction="ccw"
+    motor_constant="${motor_constant}"
+    moment_constant="${moment_constant}"
     parent="${namespace}/base_link"
     mass_rotor="${mass_rotor}"
     radius_rotor="${radius_rotor}"
+    time_constant_up="${time_constant_up}"
+    time_constant_down="${time_constant_down}"
+    max_rot_velocity="${max_rot_velocity}"
     motor_number="0"
+    rotor_drag_coefficient="${rotor_drag_coefficient}"
+    rolling_moment_coefficient="${rolling_moment_coefficient}"
     color="Red"
     use_own_mesh="false"
     mesh="">
     <origin xyz="${cos30*arm_length} ${sin30*arm_length} ${rotor_offset_top}" rpy="0 0 0" />
     <xacro:insert_block name="rotor_inertia" />
-  </xacro:vertical_rotor_advanced>
+  </xacro:vertical_rotor>
 
-  <xacro:vertical_rotor_advanced
+  <xacro:vertical_rotor
     robot_namespace="${namespace}"
+    suffix="left"
     direction="cw"
+    motor_constant="${motor_constant}"
+    moment_constant="${moment_constant}"
     parent="${namespace}/base_link"
     mass_rotor="${mass_rotor}"
     radius_rotor="${radius_rotor}"
+    time_constant_up="${time_constant_up}"
+    time_constant_down="${time_constant_down}"
+    max_rot_velocity="${max_rot_velocity}"
     motor_number="1"
+    rotor_drag_coefficient="${rotor_drag_coefficient}"
+    rolling_moment_coefficient="${rolling_moment_coefficient}"
     color="Blue"
     use_own_mesh="false"
     mesh="">
     <origin xyz="0 ${arm_length} ${rotor_offset_top}" rpy="0 0 0" />
     <xacro:insert_block name="rotor_inertia" />
-  </xacro:vertical_rotor_advanced>
+  </xacro:vertical_rotor>
 
-  <xacro:vertical_rotor_advanced
-    robot_namespace="${namespace}"
+  <xacro:vertical_rotor robot_namespace="${namespace}"
+    suffix="back_left"
     direction="ccw"
+    motor_constant="${motor_constant}"
+    moment_constant="${moment_constant}"
     parent="${namespace}/base_link"
     mass_rotor="${mass_rotor}"
     radius_rotor="${radius_rotor}"
+    time_constant_up="${time_constant_up}"
+    time_constant_down="${time_constant_down}"
+    max_rot_velocity="${max_rot_velocity}"
     motor_number="2"
+    rotor_drag_coefficient="${rotor_drag_coefficient}"
+    rolling_moment_coefficient="${rolling_moment_coefficient}"
     color="Blue"
     use_own_mesh="false"
     mesh="">
     <origin xyz="-${cos30*arm_length} ${sin30*arm_length} ${rotor_offset_top}" rpy="0 0 0" />
     <xacro:insert_block name="rotor_inertia" />
-  </xacro:vertical_rotor_advanced>
+  </xacro:vertical_rotor>
 
-  <xacro:vertical_rotor_advanced
-    robot_namespace="${namespace}"
+  <xacro:vertical_rotor robot_namespace="${namespace}"
+    suffix="back_right"
     direction="cw"
+    motor_constant="${motor_constant}"
+    moment_constant="${moment_constant}"
     parent="${namespace}/base_link"
     mass_rotor="${mass_rotor}"
     radius_rotor="${radius_rotor}"
+    time_constant_up="${time_constant_up}"
+    time_constant_down="${time_constant_down}"
+    max_rot_velocity="${max_rot_velocity}"
     motor_number="3"
+    rotor_drag_coefficient="${rotor_drag_coefficient}"
+    rolling_moment_coefficient="${rolling_moment_coefficient}"
     color="Blue"
     use_own_mesh="false"
     mesh="">
     <origin xyz="-${cos30*arm_length} -${sin30*arm_length} ${rotor_offset_top}" rpy="0 0 0" />
     <xacro:insert_block name="rotor_inertia" />
-  </xacro:vertical_rotor_advanced>
+  </xacro:vertical_rotor>
 
-  <xacro:vertical_rotor_advanced
+  <xacro:vertical_rotor
     robot_namespace="${namespace}"
+    suffix="right"
     direction="ccw"
+    motor_constant="${motor_constant}"
+    moment_constant="${moment_constant}"
     parent="${namespace}/base_link"
     mass_rotor="${mass_rotor}"
     radius_rotor="${radius_rotor}"
+    time_constant_up="${time_constant_up}"
+    time_constant_down="${time_constant_down}"
+    max_rot_velocity="${max_rot_velocity}"
     motor_number="4"
+    rotor_drag_coefficient="${rotor_drag_coefficient}"
+    rolling_moment_coefficient="${rolling_moment_coefficient}"
     color="Blue"
     use_own_mesh="false"
     mesh="">
     <origin xyz="0 -${arm_length} ${rotor_offset_top}" rpy="0 0 0" />
     <xacro:insert_block name="rotor_inertia" />
-  </xacro:vertical_rotor_advanced>
+  </xacro:vertical_rotor>
 
-  <xacro:vertical_rotor_advanced
+  <xacro:vertical_rotor
     robot_namespace="${namespace}"
+    suffix="front_right"
     direction="cw"
+    motor_constant="${motor_constant}"
+    moment_constant="${moment_constant}"
     parent="${namespace}/base_link"
     mass_rotor="${mass_rotor}"
     radius_rotor="${radius_rotor}"
+    time_constant_up="${time_constant_up}"
+    time_constant_down="${time_constant_down}"
+    max_rot_velocity="${max_rot_velocity}"
     motor_number="5"
+    rotor_drag_coefficient="${rotor_drag_coefficient}"
+    rolling_moment_coefficient="${rolling_moment_coefficient}"
     color="Red"
     use_own_mesh="false"
     mesh="">
     <origin xyz="${cos30*arm_length} -${sin30*arm_length} ${rotor_offset_top}" rpy="0 0 0" />
     <xacro:insert_block name="rotor_inertia" />
-  </xacro:vertical_rotor_advanced>
--->
+  </xacro:vertical_rotor>
+
 </robot>
