@@ -8,12 +8,11 @@ rotor_moment_constant: 0.0247
 arm_length: 0.42
 
 #tweak these:
-roll_gain: 32
-pitch_gain: 32
-roll_int_gain: 2.0
-pitch_int_gain: 2.0
-p_gain: 13
-q_gain: 13
-r_gain: 1.0
-
+roll_gain: 35
+pitch_gain: 35
+roll_int_gain: 1.7
+pitch_int_gain: 1.7
+p_gain: 10
+q_gain: 10
+r_gain: 4.3
 max_integrator_error: 0.6
