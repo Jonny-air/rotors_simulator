@@ -13,7 +13,7 @@ find_package(gazebo REQUIRED)
 
 if(${gazebo_VERSION_MAJOR} GREATER 2)
     message(STATUS "Building iris.sdf.")
-    
+
     set(enable_mavlink_interface "true")
     set(enable_ground_truth "false")
     set(enable_logging "false")
@@ -21,7 +21,7 @@ if(${gazebo_VERSION_MAJOR} GREATER 2)
     set(enable_wind "false")
     set(rotors_description_dir "${CMAKE_CURRENT_SOURCE_DIR}/models/rotors_description")
     set(scripts_dir "${CMAKE_CURRENT_SOURCE_DIR}/scripts")
-    
+
     # Creates shell commands to generate .sdf file
     add_custom_command(OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/models/iris/iris.sdf
       WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
@@ -67,6 +67,10 @@ add_dependencies(waypoint_publisher_file ${catkin_EXPORTED_TARGETS})
 add_executable(hovering_example src/hovering_example.cpp)
 target_link_libraries(hovering_example ${catkin_LIBRARIES})
 add_dependencies(hovering_example ${catkin_EXPORTED_TARGETS})
+
+add_executable( hovering_example_attitude_pid src/hovering_example_attitude_pid.cpp)
+target_link_libraries(hovering_example_attitude_pid ${catkin_LIBRARIES})
+add_dependencies(hovering_example_attitude_pid ${catkin_EXPORTED_TARGETS})
 
 foreach(dir launch models resource worlds)
    install(DIRECTORY ${dir}/
