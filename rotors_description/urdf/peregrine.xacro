@@ -35,7 +35,7 @@
   <xacro:property name="body_width" value="0.3" /> <!-- [m] -->
   <xacro:property name="body_height" value="0.3" /> <!-- [m] -->
   <xacro:property name="mass_rotor" value="0.008" /> <!-- [kg] -->
-  <xacro:property name="arm_length" value="0.4" /> <!-- [m] -->
+  <xacro:property name="arm_length" value="0.42" /> <!-- [m] -->
 
   <!-- this moight cause problems because negative -->
   <xacro:property name="rotor_offset_top" value="-0.05" /> <!-- [m] -->

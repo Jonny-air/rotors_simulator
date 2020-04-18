@@ -67,18 +67,33 @@ int main(int argc, char** argv) {
   mav_msg.thrust.x = 0.0;
   mav_msg.thrust.y = 0.0;
   mav_msg.thrust.z = 46.5;
-  ROS_INFO("Publishing 1");
+  ROS_INFO("Publishing up");
   mav_pub.publish(mav_msg);
 
   ros::Duration(5.0).sleep();
   mav_msg.thrust.z = 45.0;
-  ROS_INFO("Publishing 2");
+  ROS_INFO("Publishing stop up");
   mav_pub.publish(mav_msg);
 
   ros::Duration(3.75).sleep();
   mav_msg.thrust.z = 45.8447083403;
-  ROS_INFO("Publishing 3");
+  ROS_INFO("Publishing hovering");
   mav_pub.publish(mav_msg);
+
+  ros::Duration(2).sleep();
+  mav_msg.roll = 0.1;
+  ROS_INFO("Publishing roll");
+  mav_pub.publish(mav_msg);
+
+  // ros::Duration(2).sleep();
+  // mav_msg.roll = 0.0;
+  // ROS_INFO("Publishing roll");
+  // mav_pub.publish(mav_msg);
+
+  // ros::Duration(5).sleep();
+  // mav_msg.pitch = 0.1;
+  // ROS_INFO("Publishing pitch");
+  // mav_pub.publish(mav_msg);
 
   ros::spinOnce();
   ros::shutdown();
