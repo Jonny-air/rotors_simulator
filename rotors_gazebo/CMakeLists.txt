@@ -72,6 +72,10 @@ add_executable( hovering_example_attitude_pid src/hovering_example_attitude_pid.
 target_link_libraries(hovering_example_attitude_pid ${catkin_LIBRARIES})
 add_dependencies(hovering_example_attitude_pid ${catkin_EXPORTED_TARGETS})
 
+add_executable( system_ID_example src/system_ID_example.cpp)
+target_link_libraries(system_ID_example ${catkin_LIBRARIES})
+add_dependencies(system_ID_example ${catkin_EXPORTED_TARGETS})
+
 foreach(dir launch models resource worlds)
    install(DIRECTORY ${dir}/
       DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/${dir})

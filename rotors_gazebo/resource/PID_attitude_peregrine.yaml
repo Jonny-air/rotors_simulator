@@ -8,14 +8,11 @@ rotor_moment_constant: 0.0247
 arm_length: 0.42
 
 #tweak these:
-roll_gain: 26
-pitch_gain: 26
-roll_int_gain: 1.2
-pitch_int_gain: 1.2
-p_gain: 11
-q_gain: 11
+roll_gain: 28
+pitch_gain: 28
+roll_int_gain: 0.75
+pitch_int_gain: 0.75
+p_gain: 15
+q_gain: 15
 r_gain: 4.3
-max_integrator_error: 0.5
-
-#higher derivative -> 2 phasige response
-#higher gain -> more vibrations
+max_integrator_error: 0.6
