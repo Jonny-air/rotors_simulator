@@ -41,7 +41,7 @@ thrust_max: 20
 
 K_yaw: 1.8
 
-Ki_xy: 0.2
+Ki_xy: 0.1
 Ki_z: 0.3
 position_error_integration_limit: 2
 antiwindup_ball: 0.4
