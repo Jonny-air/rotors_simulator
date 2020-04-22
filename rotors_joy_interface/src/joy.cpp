@@ -79,6 +79,9 @@ void Joy::JoyCallback(const sensor_msgs::JoyConstPtr& msg) {
   current_joy_ = *msg;
   control_msg_.roll = msg->axes[axes_.roll] * max_.roll * axes_.roll_direction;
   control_msg_.pitch = msg->axes[axes_.pitch] * max_.pitch * axes_.pitch_direction;
+  //to have a bigger range of roll & pitch and for easier controlling per keyboard and  (-1) for pitch
+  control_msg_.roll = msg->axes[axes_.roll] * 3.3 *  max_.roll * axes_.roll_direction;
+  control_msg_.pitch = msg->axes[axes_.pitch] *  3.3 * max_.pitch * axes_.pitch_direction * (-1);
 
   if (msg->buttons[buttons_.yaw_left]) {
     current_yaw_vel_ = max_.rate_yaw;
@@ -89,14 +92,19 @@ void Joy::JoyCallback(const sensor_msgs::JoyConstPtr& msg) {
   else {
     current_yaw_vel_ = 0;
   }
-  control_msg_.yaw_rate = current_yaw_vel_;
+  // control_msg_.yaw_rate = current_yaw_vel_;
+  control_msg_.yaw_rate = 0;
 
   if (is_fixed_wing_) {
     double thrust = msg->axes[axes_.thrust] * axes_.thrust_direction;
     control_msg_.thrust.x = (thrust >= 0.0) ? thrust : 0.0;
   }
   else {
-    control_msg_.thrust.z = (msg->axes[axes_.thrust] + 1) * max_.thrust / 2.0 * axes_.thrust_direction;
+    // control_msg_.thrust.z = (msg->axes[axes_.thrust] + 1) * max_.thrust / 2.0 * axes_.thrust_direction;
+    // hardcoded for peregrine for easier controlling per keyboard
+    control_msg_.thrust.z = (msg->axes[axes_.thrust] * 5) + 46.8444;
+    // hardcoded for firefly for easier controlling per keyboard
+    // control_msg_.thrust.z = (msg->axes[axes_.thrust] * 3) + 15.4;
   }
 
   ros::Time update_time = ros::Time::now();

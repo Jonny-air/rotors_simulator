@@ -43,7 +43,7 @@
       <remap from="odometry" to="ground_truth/odometry" />
       <rosparam file="$(find rotors_gazebo)/resource/nonlinear_mpc_$(arg mav_name).yaml" />
       <rosparam file="$(find rotors_gazebo)/resource/disturbance_observer_$(arg mav_name).yaml"/>
-      <param name="use_rc_teleop" value="false"/>
+      <param name="use_rc_teleop" value="true"/>
       <param name="verbose" value="true" />
       <param name="reference_frame" value="world"/>
     </node>
@@ -53,7 +53,14 @@
       <rosparam file="$(find rotors_gazebo)/resource/PID_attitude_$(arg mav_name).yaml" />
     </node>
 
-    <node name="system_ID_example" pkg="rotors_gazebo" type="system_ID_example" output="screen"/>
+    <node name="hovering_example_attitude_pid" pkg="rotors_gazebo" type="hovering_example_attitude_pid" output="screen"/>
+
+    <!-- uncomment next 3 nodes  to use the keyboard as an attitude controller for gazebo-->
+    <!-- <node name="key_joystick" pkg="rotors_joy_interface" type="key_joystick.py" />
+
+    <node name="joy_node" pkg="joy" type="joy_node" />
+
+    <node name="rotors_joy_interface" pkg="rotors_joy_interface" type="rotors_joy_interface" /> -->
 
     <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
 

@@ -12,9 +12,9 @@
 
 ## Controller Parameters:
 mass: 4.6
-roll_time_constant: 0.52
-roll_gain: 1.04
-pitch_time_constant: 0.55
+roll_time_constant: 0.57
+roll_gain: 1.07
+pitch_time_constant: 0.57
 pitch_gain: 1.07
 linear_drag_coefficients: [0.01, 0.01, 0]
 

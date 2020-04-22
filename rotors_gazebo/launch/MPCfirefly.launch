@@ -53,7 +53,14 @@
       <rosparam file="$(find mav_lowlevel_attitude_controller)/resources/PID_attitude_$(arg mav_name).yaml" />
     </node>
 
-    <node name="system_ID_example" pkg="rotors_gazebo" type="system_ID_example" output="screen"/>
+    <node name="hovering_example_attitude_pid" pkg="rotors_gazebo" type="hovering_example_attitude_pid" output="screen"/>
+
+    <!-- uncomment next 3 nodes  to use the keyboard as an attitude controller for gazebo-->
+    <!-- <node name="key_joystick" pkg="rotors_joy_interface" type="key_joystick.py" />
+
+    <node name="joy_node" pkg="joy" type="joy_node" />
+
+    <node name="rotors_joy_interface" pkg="rotors_joy_interface" type="rotors_joy_interface" /> -->
 
     <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
 

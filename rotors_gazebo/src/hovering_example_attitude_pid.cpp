@@ -67,25 +67,28 @@ int main(int argc, char** argv) {
   mav_msg.thrust.x = 0.0;
   mav_msg.thrust.y = 0.0;
   // mav_msg.thrust.z = 46.5; //peregrine
-  ROS_INFO("Publishing up");
-  mav_pub.publish(mav_msg);
+  // ROS_INFO("Publishing up");
+  // mav_pub.publish(mav_msg);
 
   // ros::Duration(8.0).sleep();
   // mav_msg.thrust.z = 45.0; //peregrine
-  ROS_INFO("Publishing stop up");
-  mav_pub.publish(mav_msg);
+  // ROS_INFO("Publishing stop up");
+  // mav_pub.publish(mav_msg);
 
-  // ros::Duration(6.1).sleep();
-  // mav_msg.thrust.z = 45.8447083403; //peregrine
-  mav_msg.thrust.z = 15.1413010196; //firefly
+  mav_msg.thrust.z = 45.8447083403; //peregrine
+  // mav_msg.thrust.z = 15.1413010196; //firefly
   ROS_INFO("Publishing hovering");
-  mav_pub.publish(mav_msg);
 
-  ros::Duration(4).sleep();
-  mav_msg.roll = 0.5;
-  mav_msg.header.stamp = ros::Time::now();
-  ROS_INFO("Publishing roll");
-  mav_pub.publish(mav_msg);
+  for (int i = 0; i <500; i += 1){
+    mav_msg.header.stamp = ros::Time::now();
+    mav_pub.publish(mav_msg);
+    ros::Duration(0.01).sleep();
+  }
+  // ros::Duration(6.1).sleep();
+
+  // mav_msg.roll = 0.5;
+  // ROS_INFO("Publishing roll");
+  // mav_pub.publish(mav_msg);
 
   // ros::Duration(2).sleep();
   // mav_msg.roll = 0.0;
