@@ -41,8 +41,8 @@
 
     <node name="mav_nonlinear_mpc" pkg="mav_nonlinear_mpc" type="nonlinear_mpc_node" respawn="true" clear_params="true" output="screen">
       <remap from="odometry" to="ground_truth/odometry" />
-      <rosparam file="$(find rotors_gazebo)/resource/nonlinear_mpc_$(arg mav_name).yaml" />
-      <rosparam file="$(find rotors_gazebo)/resource/disturbance_observer_$(arg mav_name).yaml"/>
+      <rosparam file="$(find mav_nonlinear_mpc)/resources/nonlinear_mpc_$(arg mav_name).yaml" />
+      <rosparam file="$(find mav_disturbance_observer)/resources/disturbance_observer_$(arg mav_name).yaml"/>
       <param name="use_rc_teleop" value="false"/>
       <param name="verbose" value="true" />
       <param name="reference_frame" value="world"/>
@@ -50,7 +50,7 @@
 
     <node name="PID_attitude_controller" pkg="mav_lowlevel_attitude_controller" type="mav_pid_attitude_controller_node" respawn="true" clear_params="true" output="screen">
       <remap from="odometry" to="ground_truth/odometry" />
-      <rosparam file="$(find rotors_gazebo)/resource/PID_attitude_$(arg mav_name).yaml" />
+      <rosparam file="$(find mav_lowlevel_attitude_controller)/resources/PID_attitude_$(arg mav_name).yaml" />
     </node>
 
     <node name="hovering_example" pkg="rotors_gazebo" type="hovering_example" output="screen"/>
