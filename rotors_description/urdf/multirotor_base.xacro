@@ -36,6 +36,34 @@
     </inertial>
   </xacro:macro>
 
+  <xacro:macro name="offset_target" params="namespace Ixx Iyy Izz mass parent_link *origin" >
+    <link name="${namespace}/offset_target_link">
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+            <cylinder radius="0.2" length="0.1"/>
+        </geometry>
+      </collision>
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <cylinder radius="0.1" length="0.05"/>
+        </geometry>
+        <material name="red" />
+      </visual>
+      <inertial>
+        <mass value="${mass}" />
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <inertia ixx="${Ixx}" ixy="0" ixz="0" iyy="${Iyy}" iyz="0" izz="${Izz}" />
+      </inertial>
+    </link>
+    <joint name="${namespace}/offset_target_joint" type="fixed">
+      <xacro:insert_block name="origin" />
+      <parent link="${parent_link}" />
+      <child link="${namespace}/offset_target_link" />
+    </joint>
+  </xacro:macro>
+
   <!-- Main multirotor link -->
   <xacro:macro name="multirotor_base_macro"
     params="robot_namespace mass body_width body_height use_mesh_file mesh_file *inertia">

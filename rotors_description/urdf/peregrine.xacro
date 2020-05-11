@@ -30,12 +30,23 @@
   <xacro:property name="use_mesh_file" value="true" />
   <xacro:property name="mesh_file" value="package://rotors_description/meshes/peregrine.dae" />
 
-  <!-- Params to be adjusted from firefly to peregrine -->
+  <!-- Params for peregrine -->
   <xacro:property name="mass" value="4.6" /> <!-- [kg] -->
   <xacro:property name="body_width" value="0.3" /> <!-- [m] -->
   <xacro:property name="body_height" value="0.3" /> <!-- [m] -->
   <xacro:property name="mass_rotor" value="0.008" /> <!-- [kg] -->
   <xacro:property name="arm_length" value="0.42" /> <!-- [m] -->
+
+
+  <!-- Params for the target caught at an offset -->
+  <xacro:property name="offset_mass" value="0.8" /> <!-- [kg] -->
+  <xacro:property name="offset_x" value="0.3" /> <!-- [m] -->
+  <xacro:property name="offset_y" value="0.3" /> <!-- [m] -->
+  <xacro:property name="offset_z" value="0.3" /> <!-- [m] -->
+  <xacro:property name="offset_Ixx" value="0.02" /> <!-- [m] -->
+  <xacro:property name="offset_Iyy" value="0.02" /> <!-- [m] -->
+  <xacro:property name="offset_Izz" value="0.05" /> <!-- [m] -->
+
 
   <!-- this moight cause problems because negative -->
   <xacro:property name="rotor_offset_top" value="-0.05" /> <!-- [m] -->
@@ -83,6 +94,16 @@
     >
     <xacro:insert_block name="body_inertia" />
   </xacro:multirotor_base_macro>
+
+  <!-- <xacro:offset_target
+    namespace="${namespace}"
+    Ixx="${offset_Ixx}"
+    Iyy="${offset_Iyy}"
+    Izz="${offset_Izz}"
+    mass="${offset_mass}"
+    parent_link="${namespace}/base_link">
+    <origin xyz="${offset_x} ${offset_y} ${offset_z}" rpy="0 0 0" />
+  </xacro:offset_target> -->
 
   <!-- Instantiate rotors -->
   <xacro:vertical_rotor
