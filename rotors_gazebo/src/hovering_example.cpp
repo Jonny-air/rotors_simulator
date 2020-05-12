@@ -36,6 +36,8 @@ int main(int argc, char** argv) {
   ros::Publisher trajectory_pub =
       nh.advertise<trajectory_msgs::MultiDOFJointTrajectory>(
           mav_msgs::default_topics::COMMAND_TRAJECTORY, 10);
+  ros::Publisher mav_pub =
+      nh.advertise<mav_msgs::RollPitchYawrateThrust>("command/roll_pitch_yawrate_thrust", 10);
   ROS_INFO("Started hovering example.");
 
   std_srvs::Empty srv;
@@ -56,9 +58,43 @@ int main(int argc, char** argv) {
   } else {
     ROS_INFO("Unpaused the Gazebo simulation.");
   }
+  // Wait for 5 seconds to let the Gazebo GUI show up.
+  ros::Duration(3.0).sleep();
+
+  mav_msgs::RollPitchYawrateThrust mav_msg;
+  mav_msg.header.stamp = ros::Time::now();
+
+  // Default desired input
+  mav_msg.roll = 0.0;
+  mav_msg.pitch = 0.0;
+  mav_msg.yaw_rate = 0.0;
+  mav_msg.thrust.x = 0.0;
+  mav_msg.thrust.y = 0.0;
+  // mav_msg.thrust.z = 46.5; //peregrine
+  // ROS_INFO("Publishing up");
+  // mav_pub.publish(mav_msg);
+
+  // ros::Duration(8.0).sleep();
+  // mav_msg.thrust.z = 45.0; //peregrine
+  // ROS_INFO("Publishing stop up");
+  // mav_pub.publish(mav_msg);
+
+  mav_msg.thrust.z = 70; //peregrine
+  // mav_msg.thrust.z = 15.1413010196; //firefly
+  // ROS_INFO("Publishing hovering");
+  // mav_msg.header.stamp = ros::Time::now();
+  // mav_pub.publish(mav_msg);
+  // ros::Duration(0.3).sleep();
+  mav_msg.roll = 0.63;
+  mav_msg.pitch = -0.63;
+  for (int i = 0; i <300; i += 1){
+    mav_msg.header.stamp = ros::Time::now();
+    mav_pub.publish(mav_msg);
+    ros::Duration(0.01).sleep();
+  }
 
   // Wait for 5 seconds to let the Gazebo GUI show up.
-  ros::Duration(5.0).sleep();
+  // ros::Duration(5.0).sleep();
 
   trajectory_msgs::MultiDOFJointTrajectory trajectory_msg;
   trajectory_msg.header.stamp = ros::Time::now();
