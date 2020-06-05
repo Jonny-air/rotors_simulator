@@ -31,7 +31,7 @@
   <xacro:property name="mesh_file" value="package://rotors_description/meshes/peregrine.dae" />
 
   <!-- Params for peregrine -->
-  <xacro:property name="mass" value="4.6" /> <!-- [kg] -->
+  <xacro:property name="mass" value="6.0" /> <!-- [kg] -->
   <xacro:property name="body_width" value="0.3" /> <!-- [m] -->
   <xacro:property name="body_height" value="0.3" /> <!-- [m] -->
   <xacro:property name="mass_rotor" value="0.008" /> <!-- [kg] -->
@@ -39,7 +39,7 @@
 
 
   <!-- Params for the target caught at an offset -->
-  <xacro:property name="offset_mass" value="0.8" /> <!-- [kg] -->
+  <xacro:property name="offset_mass" value="0.0" /> <!-- [kg] -->
   <xacro:property name="offset_x" value="0.3" /> <!-- [m] -->
   <xacro:property name="offset_y" value="0.3" /> <!-- [m] -->
   <xacro:property name="offset_z" value="0.3" /> <!-- [m] -->
