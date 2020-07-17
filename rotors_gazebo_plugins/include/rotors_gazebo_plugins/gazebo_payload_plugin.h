@@ -24,15 +24,18 @@
 #include "gazebo/physics/physics.hh"
 #include "gazebo/transport/TransportTypes.hh"
 #include "gazebo/transport/transport.hh"
+// #include <geometry_msgs/PointStamped.h>
 
 #include "rotors_gazebo_plugins/common.h"
 #include "ConnectGazeboToRosTopic.pb.h"
-#include "Float32.pb.h"
+
+
+#include "PointStamped.pb.h"
 
 namespace gazebo
 {
 
-typedef const boost::shared_ptr<const gz_std_msgs::Float32> Float32Ptr;
+typedef const boost::shared_ptr<const gz_geometry_msgs::PointStamped> PointStampedPtr;
 
 /// \brief A template model plugin
 class GAZEBO_VISIBLE GazeboPayloadPlugin : public ModelPlugin
@@ -71,19 +74,18 @@ private:
     transport::NodePtr node_handle_;
 
     std::string namespace_;
-    bool drop_ = false;
-    bool reload_ = false;
-    bool trigg_ = false;
-    bool ini_ = true;
-    bool reset_ = false;
+    bool precatch_ = true;
+    bool catching_ = false;
+    bool postcatch_ = false;
     common::Timer reload_timer_;
 
     std::string drop_topic_;
-    transport::SubscriberPtr drop_sub_;
+    transport::SubscriberPtr target_pos_sub_;
+    // transport::PublishPtr force_pub_;
 
     bool pubs_and_subs_created_ = false;
     void CreatePubsAndSubs();
-    void DropCallback(Float32Ptr& drop_msg);
+    void TPosCallback(PointStampedPtr& pos);
 
 };
 }

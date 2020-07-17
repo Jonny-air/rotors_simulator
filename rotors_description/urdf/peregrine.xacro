@@ -37,17 +37,6 @@
   <xacro:property name="mass_rotor" value="0.008" /> <!-- [kg] -->
   <xacro:property name="arm_length" value="0.42" /> <!-- [m] -->
 
-
-  <!-- Params for the target caught at an offset -->
-  <xacro:property name="offset_mass" value="0.00" /> <!-- [kg] -->
-  <xacro:property name="offset_x" value="0.3" /> <!-- [m] -->
-  <xacro:property name="offset_y" value="0.3" /> <!-- [m] -->
-  <xacro:property name="offset_z" value="0.3" /> <!-- [m] -->
-  <xacro:property name="offset_Ixx" value="0.02" /> <!-- [m] -->
-  <xacro:property name="offset_Iyy" value="0.02" /> <!-- [m] -->
-  <xacro:property name="offset_Izz" value="0.05" /> <!-- [m] -->
-
-
   <!-- this moight cause problems because negative -->
   <xacro:property name="rotor_offset_top" value="-0.05" /> <!-- [m] -->
 
@@ -94,16 +83,6 @@
     >
     <xacro:insert_block name="body_inertia" />
   </xacro:multirotor_base_macro>
-
-  <!-- <xacro:offset_target
-    namespace="${namespace}"
-    Ixx="${offset_Ixx}"
-    Iyy="${offset_Iyy}"
-    Izz="${offset_Izz}"
-    mass="${offset_mass}"
-    parent_link="${namespace}/base_link">
-    <origin xyz="${offset_x} ${offset_y} ${offset_z}" rpy="0 0 0" />
-  </xacro:offset_target> -->
 
   <!-- Instantiate rotors -->
   <xacro:vertical_rotor
@@ -235,5 +214,54 @@
     <origin xyz="${cos30*arm_length} -${sin30*arm_length} ${rotor_offset_top}" rpy="0 0 0" />
     <xacro:insert_block name="rotor_inertia" />
   </xacro:vertical_rotor>
+
+  <!-- Payload -->
+  <link name="${namespace}/target_drone">
+     <inertial>
+        <origin xyz="0.01 0 0" rpy="0 0 0" />
+        <mass value="1" />
+        <inertia ixx="0.02" ixy="0.0" ixz="0.0" iyy="0.02" iyz="0.0" izz="0.05" /> <!-- [kg m^2] [kg m^2] [kg m^2] [kg m^2] [kg m^2] [kg m^2] -->
+     </inertial>
+     <visual>
+        <origin xyz="0.01 0 0" rpy="0 0 0" />
+        <geometry>
+           <!-- <mesh filename="package://rotors_description/meshes/payloads/payload.stl" scale="0.012 0.012 0.012" /> -->
+           <cylinder length="0.1" radius="0.25"/>
+        </geometry>
+     </visual>
+     <collision>
+        <origin xyz="0.01 0 0" rpy="0 0 0" />
+        <geometry>
+          <cylinder length="0.1" radius="0.25"/>
+        </geometry>
+     </collision>
+  </link>
+  <joint name="${namespace}/target_drone_joint" type="floating">
+     <parent link="${namespace}/base_link" />
+     <child link="${namespace}/target_drone" />
+     <origin xyz="0 0 0" rpy="0 0 0" />
+  </joint>
+  <gazebo reference="${namespace}/target_drone">
+     <visual>
+        <!-- <plugin name="visual_plugin_target_drone" filename="librotors_gazebo_template_visual_plugin.so" /> -->
+        <cylinder length="0.1" radius="0.25"/>
+     </visual>
+     <material>Gazebo/Orange</material>
+     <mu1>0.2</mu1>
+     <mu2>0.2</mu2>
+     <kp>10000</kp>
+     <kd>1</kd>
+  </gazebo>
+  <gazebo>
+     <plugin filename="librotors_gazebo_payload_plugin.so" name="payload_plugin">
+        <robotNamespace>${namespace}</robotNamespace>
+        <joint>${namespace}/payload_1_joint</joint>
+        <payload>${namespace}/target_drone</payload>
+        <parent>${namespace}/base_link</parent>
+        <hoistPosParent>0 -0.15 -0.04</hoistPosParent>
+        <hoistPosPayload>0 0 0</hoistPosPayload>
+        <dropTopic>drop_1</dropTopic>
+     </plugin>
+  </gazebo>
 
 </robot>
