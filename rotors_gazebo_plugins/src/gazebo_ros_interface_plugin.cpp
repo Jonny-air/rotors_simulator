@@ -441,6 +441,27 @@ void GazeboRosInterfacePlugin::GzConnectRosToGazeboTopicMsgCallback(
 
       break;
     }
+    case gz_std_msgs::ConnectRosToGazeboTopic::VICTIM_POSITION: {
+      gzdbg << "VICTIM_POSITION msgtype: "<<gz_connect_ros_to_gazebo_topic_msg->msgtype()<<std::endl;
+      gazebo::transport::PublisherPtr gz_publisher_ptr =
+          gz_node_handle_->Advertise<gz_geometry_msgs::Vector3dStamped>(
+              gz_connect_ros_to_gazebo_topic_msg->gazebo_topic(), 1);
+      gzerr << "ConnectGazebo\n";
+      // Create ROS subscriber.
+      ros::Subscriber ros_subscriber =
+          ros_node_handle_->subscribe<geometry_msgs::PointStamped>(
+              gz_connect_ros_to_gazebo_topic_msg->ros_topic(), 1,
+              boost::bind(
+                  &GazeboRosInterfacePlugin::RosTargetPosMsgCallback,
+                  this, _1, gz_publisher_ptr));
+
+      // Save reference to the ROS subscriber so callback will continue to be
+      // called.
+      ros_subscribers.push_back(ros_subscriber);
+
+      break;
+    }
+
     case gz_std_msgs::ConnectRosToGazeboTopic::ROLL_PITCH_YAWRATE_THRUST: {
       gzdbg << "ROLL_PITCH_YAWRATE_THRUST msgtype: "<<gz_connect_ros_to_gazebo_topic_msg->msgtype()<<std::endl;
       gazebo::transport::PublisherPtr gz_publisher_ptr =
@@ -1199,6 +1220,26 @@ void GazeboRosInterfacePlugin::RosCommandMotorSpeedMsgCallback(
 
   // Publish to Gazebo
   gz_publisher_ptr->Publish(gz_command_motor_speed_msg);
+}
+
+void GazeboRosInterfacePlugin::RosTargetPosMsgCallback(
+    const geometry_msgs::PointStampedConstPtr& ros_target_pos_msg_ptr,
+    gazebo::transport::PublisherPtr gz_publisher_ptr) {
+  // Convert ROS message to Gazebo message
+  gz_geometry_msgs::Vector3dStamped gz_target_pos_msg;
+  gazebo::msgs::Vector3d pos;
+  pos.set_x(ros_target_pos_msg_ptr->point.x);
+  pos.set_y(ros_target_pos_msg_ptr->point.y);
+  pos.set_z(ros_target_pos_msg_ptr->point.z);
+
+  ConvertHeaderRosToGz(ros_target_pos_msg_ptr->header,
+                       gz_target_pos_msg.mutable_header());
+
+  gz_target_pos_msg.set_allocated_position(&pos);
+
+
+  // Publish to Gazebo
+  gz_publisher_ptr->Publish(gz_target_pos_msg);
 }
 
 void GazeboRosInterfacePlugin::RosRollPitchYawrateThrustMsgCallback(

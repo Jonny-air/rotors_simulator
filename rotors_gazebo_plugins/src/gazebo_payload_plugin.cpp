@@ -109,25 +109,33 @@ void GazeboPayloadPlugin::Load(physics::ModelPtr _model,
 
 /////////////////////////////////////////////////
 void GazeboPayloadPlugin::CreatePubsAndSubs(){
-
     target_pos_sub_ = node_handle_->Subscribe("~/visualization/victim_position", &GazeboPayloadPlugin::TPosCallback, this);
-    gzerr << "Subscribed \n";
+    // target_pos_sub_->Subscribe(&GazeboPayloadPlugin::TPosCallback, this);
+
     // force_pub_ = node_handle_->Publish("/pigeon/interaction_force",  , this);
+
+    gazebo::transport::PublisherPtr connect_ros_to_gazebo_topic_pub =
+        node_handle_->Advertise<gz_std_msgs::ConnectRosToGazeboTopic>(
+            "~/" + kConnectRosToGazeboSubtopic, 1);
+
+    gz_std_msgs::ConnectRosToGazeboTopic connect_ros_to_gazebo_topic_msg;
+    connect_ros_to_gazebo_topic_msg.set_gazebo_topic("~/visualization/victim_position");
+    connect_ros_to_gazebo_topic_msg.set_ros_topic("/visualization/victim_position");
+    connect_ros_to_gazebo_topic_msg.set_msgtype(gz_std_msgs::ConnectRosToGazeboTopic::VICTIM_POSITION);
+    connect_ros_to_gazebo_topic_pub->Publish(connect_ros_to_gazebo_topic_msg, true);
 }
 
 /////////////////////////////////////////////////
-void GazeboPayloadPlugin::TPosCallback(PointStampedPtr &pos){
-    ignition::math::Pose3d tpose(pos->point().x(), pos->point().y(), pos->point().z(), 0, 0, 0);
-    gzerr << pos->point().x();
-    // ignition::math:: positx = pos->point().x();
+void GazeboPayloadPlugin::TPosCallback(Vector3dStampedPtr &pos){
+    gzerr<< "TPosCallback\n";
+    ignition::math::Pose3d tpose(pos->position().x(), pos->position().y(), pos->position().z(), 0, 0, 0);
+    gzerr << pos->position().x();
 
     payload_->SetWorldPose(tpose);
 }
 
 /////////////////////////////////////////////////
-void GazeboPayloadPlugin::OnUpdate()
-{
-
+void GazeboPayloadPlugin::OnUpdate() {
     if (!pubs_and_subs_created_) {
       CreatePubsAndSubs();
       pubs_and_subs_created_ = true;
@@ -165,10 +173,6 @@ void GazeboPayloadPlugin::OnUpdate()
     double distance_net = z_Axis.Dot(pos_err);
 
     //state machine
-
-    // bool precatch_;
-    // bool catching_;
-    // bool postcatch_;
 
     if (distance_net < 0.1 && precatch_ == true){
         precatch_ = false;
@@ -221,5 +225,4 @@ void GazeboPayloadPlugin::OnUpdate()
 
     parent_->AddForceAtRelativePosition(-reactio*force, force_position);
     payload_->AddForceAtRelativePosition(force, zero);
-
 }

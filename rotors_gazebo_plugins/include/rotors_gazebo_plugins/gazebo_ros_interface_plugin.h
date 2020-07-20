@@ -36,7 +36,6 @@
 //============= GAZEBO MSG TYPES ==============//
 #include "ConnectGazeboToRosTopic.pb.h"
 #include "ConnectRosToGazeboTopic.pb.h"
-
 #include "Actuators.pb.h"
 #include "CommandMotorSpeed.pb.h"
 #include "Float32.pb.h"
@@ -319,6 +318,12 @@ class GazeboRosInterfacePlugin : public WorldPlugin {
   void RosCommandMotorSpeedMsgCallback(
       const mav_msgs::ActuatorsConstPtr& ros_command_motor_speed_msg_ptr,
       gazebo::transport::PublisherPtr gz_publisher_ptr);
+
+
+  void RosTargetPosMsgCallback(
+      const geometry_msgs::PointStampedConstPtr& ros_target_pos_msg_ptr,
+      gazebo::transport::PublisherPtr gz_publisher_ptr);
+
 
   // ROLL PITCH YAWRATE THRUST
   void RosRollPitchYawrateThrustMsgCallback(

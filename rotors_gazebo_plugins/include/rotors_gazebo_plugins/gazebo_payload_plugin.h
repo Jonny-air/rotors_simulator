@@ -24,18 +24,17 @@
 #include "gazebo/physics/physics.hh"
 #include "gazebo/transport/TransportTypes.hh"
 #include "gazebo/transport/transport.hh"
-// #include <geometry_msgs/PointStamped.h>
 
 #include "rotors_gazebo_plugins/common.h"
-#include "ConnectGazeboToRosTopic.pb.h"
+#include "ConnectRosToGazeboTopic.pb.h"
 
 
-#include "PointStamped.pb.h"
+#include "Vector3dStamped.pb.h"
 
 namespace gazebo
 {
 
-typedef const boost::shared_ptr<const gz_geometry_msgs::PointStamped> PointStampedPtr;
+typedef const boost::shared_ptr<const gz_geometry_msgs::Vector3dStamped> Vector3dStampedPtr;
 
 /// \brief A template model plugin
 class GAZEBO_VISIBLE GazeboPayloadPlugin : public ModelPlugin
@@ -85,7 +84,7 @@ private:
 
     bool pubs_and_subs_created_ = false;
     void CreatePubsAndSubs();
-    void TPosCallback(PointStampedPtr& pos);
+    void TPosCallback(Vector3dStampedPtr& pos);
 
 };
 }
