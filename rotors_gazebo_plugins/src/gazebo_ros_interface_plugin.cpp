@@ -1227,16 +1227,13 @@ void GazeboRosInterfacePlugin::RosTargetPosMsgCallback(
     gazebo::transport::PublisherPtr gz_publisher_ptr) {
   // Convert ROS message to Gazebo message
   gz_geometry_msgs::Vector3dStamped gz_target_pos_msg;
-  gazebo::msgs::Vector3d pos;
-  pos.set_x(ros_target_pos_msg_ptr->point.x);
-  pos.set_y(ros_target_pos_msg_ptr->point.y);
-  pos.set_z(ros_target_pos_msg_ptr->point.z);
+  gazebo::msgs::Vector3d* pos = gz_target_pos_msg.mutable_position();
+  pos->set_x(ros_target_pos_msg_ptr->point.x);
+  pos->set_y(ros_target_pos_msg_ptr->point.y);
+  pos->set_z(ros_target_pos_msg_ptr->point.z);
 
   ConvertHeaderRosToGz(ros_target_pos_msg_ptr->header,
                        gz_target_pos_msg.mutable_header());
-
-  gz_target_pos_msg.set_allocated_position(&pos);
-
 
   // Publish to Gazebo
   gz_publisher_ptr->Publish(gz_target_pos_msg);
