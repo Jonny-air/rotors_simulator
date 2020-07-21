@@ -73,10 +73,11 @@ private:
     transport::NodePtr node_handle_;
 
     std::string namespace_;
-    bool precatch_ = true;
-    bool catching_ = false;
-    bool postcatch_ = false;
-    common::Timer reload_timer_;
+    bool precatch_;
+    bool catching_;
+    bool postcatch_;
+    ignition::math::Vector3d payload_pos_old_;
+    double payload_time_old_;
 
     std::string drop_topic_;
     transport::SubscriberPtr target_pos_sub_;

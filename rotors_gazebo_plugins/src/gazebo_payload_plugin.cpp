@@ -28,6 +28,13 @@ GZ_REGISTER_MODEL_PLUGIN(GazeboPayloadPlugin)
 GazeboPayloadPlugin::GazeboPayloadPlugin()
 {
     gzdbg<<"GazeboPayloadPlugin constructed\n";
+    payload_pos_old_[0] = -1;
+    payload_pos_old_[1] = -1;
+    payload_pos_old_[2] = -1;
+
+    precatch_ = true;
+    catching_ = false;
+    postcatch_ = false;
 }
 
 /////////////////////////////////////////////////
@@ -127,11 +134,24 @@ void GazeboPayloadPlugin::CreatePubsAndSubs(){
 
 /////////////////////////////////////////////////
 void GazeboPayloadPlugin::TPosCallback(Vector3dStampedPtr &pos){
-    gzerr<< "TPosCallback\n";
+  if(precatch_){
     ignition::math::Pose3d tpose(pos->position().x(), pos->position().y(), pos->position().z(), 0, 0, 0);
-    gzerr << pos->position().x();
-
+    double time = pos->header().stamp().sec() + double(pos->header().stamp().nsec()) / 1e9;
+    if(payload_pos_old_[2] != -1){
+      double dt = time - payload_time_old_;
+      double vx = (pos->position().x() - payload_pos_old_[0])/dt;
+      double vy = (pos->position().y() - payload_pos_old_[1])/dt;
+      double vz = (pos->position().z() - payload_pos_old_[2])/dt;
+      ignition::math::Vector3d v(vx, vy, vz);
+      payload_->SetLinearVel(v);
+    }
     payload_->SetWorldPose(tpose);
+
+    payload_time_old_ = time;
+    payload_pos_old_[0] = pos->position().x();
+    payload_pos_old_[1] = pos->position().y();
+    payload_pos_old_[2] = pos->position().z();
+  }
 }
 
 /////////////////////////////////////////////////
@@ -170,59 +190,72 @@ void GazeboPayloadPlugin::OnUpdate() {
     ignition::math::Vector3d y_Axis = pose_parent.Rot().YAxis();
     ignition::math::Vector3d x_Axis = pose_parent.Rot().XAxis();
 
-    double distance_net = z_Axis.Dot(pos_err);
+    double distance_net = pos_err.Dot(z_Axis);
 
     //state machine
 
-    if (distance_net < 0.1 && precatch_ == true){
+    if (distance_net > -0.1 && precatch_ && pose_payload.Pos()[2] > 2){
         precatch_ = false;
         catching_ = true;
     }
 
     //ignition::math::Quaterniond rot_err = q_pr_pa_.Inverse()*pose_parent.Rot().Inverse()*pose_payload.Rot();
 
-    double omega = 3*33.3;    // natural frequency
-    double zeta = 1.0;      // damping ratio
-    double mass = 1;
-    double inertia = 0.4*mass*0.0025; // inertia of solid sphere: 0.4*m*r²
-    double k_p_lin_z = omega*omega*mass;
-    double k_d_lin_xy = 5 * zeta*omega*mass;
-    double k_d_lin_z = 2*zeta*omega*mass;
-    double reactio;
+    // double omega = 1;    // natural frequency
+    // double zeta = 1.0;      // damping ratio
+    // double mass = 1;
+    double k_p_lin_z = 100;
+    double k_d_lin_xy = 10;//5 * zeta*omega*mass;
+    double k_d_lin_z = 10; //2;
+    double reactio_xy = 0;
+    double reactio_z = 1;
 
-    if(precatch_ || pose_parent.Pos()[2] < 3) {
+    if(precatch_) {
         k_p_lin_z = 0;
         k_d_lin_xy = 0;
         k_d_lin_z = 0;
-        reactio = 0;
+        reactio_z = 0;
 
-    } else if(catching_) {
-        reactio = 1;
+    } //else if(catching_) {
+    //     reactio = 1;
+    //
+    // } else {
+    //     reactio = 1;
+    // }
 
-    } else {
-        reactio = 1;
-    }
+    double forcex_t  = -k_d_lin_xy*lin_vel_err.Dot(x_Axis);
+    double forcey_t  = -k_d_lin_xy*lin_vel_err.Dot(y_Axis);
+    double forcez_t  = k_p_lin_z*pos_err[2]-k_d_lin_z*lin_vel_err[2]; //.Dot(z_Axis)-k_d_lin_z*lin_vel_err.Dot(z_Axis);
 
-    double forcex  = -k_d_lin_xy*lin_vel_err.Dot(x_Axis);
-    double forcey  = -k_d_lin_xy*lin_vel_err.Dot(y_Axis);
-    double forcez  = k_p_lin_z*pos_err.Dot(z_Axis)-k_d_lin_z*lin_vel_err.Dot(z_Axis);
-    /*
-    if(force.Length()>100)
-        force = force/force.Length()*100;
-    */
-    gzerr << forcex << " " << forcey <<  " " << forcez << "\n";
-    ignition::math::Vector3d force(forcex, forcey, forcez);
+    double forcex_d = -reactio_xy * forcex_t;
+    double forcey_d = -reactio_xy * forcey_t;
+    double forcez_d = -reactio_z * forcez_t;
+    // if(forcex>100)
+    //     forcex = 100;
+    // if(forcey>100)
+    //     forcey = 100;
+    // if(forcez>100)
+    //     forcez = 100;
+    // if(forcex<-100)
+    //     forcex = -100;
+    // if(forcey<-100)
+    //     forcey = -100;
+    // if(forcez<-100)
+    //     forcez = -100;
 
-    force.Correct();
+    gzerr << /*" precatch: " << precatch_ << " Catching: " << catching_ << " postcatch: " << postcatch_ <<*/
+        " Fx: " << forcex_t << " Fy: " << forcey_t <<  " Fz: " << forcez_t <<
+        " LinVelErr: " << lin_vel_err <<
+        " PosErr: " << pos_err  << /*" D_net: " << distance_net <<*/"\n";
+    ignition::math::Vector3d force_t(forcex_t, forcey_t, forcez_t);
+    ignition::math::Vector3d force_d(forcex_d, forcey_d, forcez_d);
 
-    /*
-    gzdbg<<"x: "<<force.X()<<" y: "<<force.Y()<<" z: "<<force.Z()<<"\n";
-    gzdbg<<"rx: "<<pos_err.X()<<" ry: "<<pos_err.Y()<<" rz: "<<pos_err.Z()<<"\n";
-    gzdbg<<"vx: "<<lin_vel_err.X()<<" vy: "<<lin_vel_err.Y()<<" vz: "<<lin_vel_err.Z()<<"\n";
-    */
+    force_d.Correct();
+    force_t.Correct();
+
     ignition::math::Vector3d force_position(pos_err.Dot(x_Axis), pos_err.Dot(y_Axis), 0);
     ignition::math::Vector3d zero(0,0,0);
 
-    parent_->AddForceAtRelativePosition(-reactio*force, force_position);
-    payload_->AddForceAtRelativePosition(force, zero);
+    parent_->AddForceAtRelativePosition(force_d, force_position);
+    payload_->AddForceAtRelativePosition(force_t, zero);
 }
