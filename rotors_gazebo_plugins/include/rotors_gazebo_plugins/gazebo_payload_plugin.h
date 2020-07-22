@@ -27,6 +27,7 @@
 
 #include "rotors_gazebo_plugins/common.h"
 #include "ConnectRosToGazeboTopic.pb.h"
+#include "ConnectGazeboToRosTopic.pb.h"
 
 
 #include "Vector3dStamped.pb.h"
@@ -79,8 +80,9 @@ private:
     ignition::math::Vector3d payload_pos_old_;
     double payload_time_old_;
 
-    std::string drop_topic_;
     transport::SubscriberPtr target_pos_sub_;
+    transport::PublisherPtr force_pub_;
+    gz_geometry_msgs::Vector3dStamped force_msg_;
     // transport::PublishPtr force_pub_;
 
     bool pubs_and_subs_created_ = false;

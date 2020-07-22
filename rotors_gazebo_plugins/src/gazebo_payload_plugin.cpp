@@ -35,6 +35,7 @@ GazeboPayloadPlugin::GazeboPayloadPlugin()
     precatch_ = true;
     catching_ = false;
     postcatch_ = false;
+    force_msg_.mutable_header()->set_frame_id("world");
 }
 
 /////////////////////////////////////////////////
@@ -62,31 +63,6 @@ void GazeboPayloadPlugin::Load(physics::ModelPtr _model,
     node_handle_->Init();
 
     this->update_connection_ = event::Events::ConnectWorldUpdateBegin(boost::bind(&GazeboPayloadPlugin::OnUpdate, this));
-
-    /*
-    if (_sdf->HasElement("link")) {
-        std::string link_name = _sdf->Get<std::string>("link");
-        this->link_ = this->model_->GetLink(link_name);
-    } else if (!this->link_) {
-        gzerr << "Link not found\n";
-    }
-    */
-
-    /*
-    std::string joint_name;
-    if (_sdf->HasElement("joint")) {
-        joint_name = _sdf->Get<std::string>("joint");
-        this->joint_ = this->model_->GetJoint(joint_name);
-    }
-
-    if (!this->joint_){
-        gzerr<<"Joint "<<joint_name<<" not found \n";
-
-    } else {
-        payload_ = joint_->GetChild();
-        parent_ = joint_->GetParent();
-    }
-    */
 
     if (_sdf->HasElement("payload")) {
         std::string payload = _sdf->Get<std::string>("payload");
@@ -119,7 +95,7 @@ void GazeboPayloadPlugin::CreatePubsAndSubs(){
     target_pos_sub_ = node_handle_->Subscribe("~/visualization/victim_position", &GazeboPayloadPlugin::TPosCallback, this);
     // target_pos_sub_->Subscribe(&GazeboPayloadPlugin::TPosCallback, this);
 
-    // force_pub_ = node_handle_->Publish("/pigeon/interaction_force",  , this);
+    // force_pub_ = node_handle_->Advertise<gz_geometry_msgs::Vector3dStamped>("~/visualization/impact_force", 1);
 
     gazebo::transport::PublisherPtr connect_ros_to_gazebo_topic_pub =
         node_handle_->Advertise<gz_std_msgs::ConnectRosToGazeboTopic>(
@@ -130,9 +106,19 @@ void GazeboPayloadPlugin::CreatePubsAndSubs(){
     connect_ros_to_gazebo_topic_msg.set_ros_topic("/visualization/victim_position");
     connect_ros_to_gazebo_topic_msg.set_msgtype(gz_std_msgs::ConnectRosToGazeboTopic::VICTIM_POSITION);
     connect_ros_to_gazebo_topic_pub->Publish(connect_ros_to_gazebo_topic_msg, true);
+
+    // gazebo::transport::PublisherPtr connect_gazebo_to_ros_topic_pub =
+    //     node_handle_->Advertise<gz_std_msgs::ConnectGazeboToRosTopic>(
+    //         "~/" + kConnectGazeboToRosSubtopic, 1);
+
+    // gz_std_msgs::ConnectGazeboToRosTopic connect_gazebo_to_ros_topic_msg;
+    // connect_gazebo_to_ros_topic_msg.set_gazebo_topic("~/visualization/impact_force");
+    // connect_gazebo_to_ros_topic_msg.set_ros_topic("/visualization/impact_force");
+    // connect_gazebo_to_ros_topic_msg.set_msgtype(gz_std_msgs::ConnectGazeboToRosTopic::VECTOR_3D_STAMPED);
+    // connect_gazebo_to_ros_topic_pub->Publish(connect_gazebo_to_ros_topic_msg, true);
 }
 
-/////////////////////////////////////////////////
+
 void GazeboPayloadPlugin::TPosCallback(Vector3dStampedPtr &pos){
   if(precatch_){
     ignition::math::Pose3d tpose(pos->position().x(), pos->position().y(), pos->position().z(), 0, 0, 0);
@@ -164,27 +150,12 @@ void GazeboPayloadPlugin::OnUpdate() {
 
     ignition::math::Pose3d pose_parent = parent_->WorldPose();
     ignition::math::Pose3d pose_payload = payload_->WorldPose();
-    //ignition::math::Pose3d pose_payload_reset;
-    // pose_payload_reset.Pos() = pose_parent.Pos() + pose_parent.Rot().RotateVector(hoist_pos_parent_) - pose_payload.Rot().RotateVector(hoist_pos_payload_);
-    // pose_payload_reset.Rot() = pose_parent.Rot();
-
-    //pose_parent.Pos() += pose_parent.Rot().RotateVector(hoist_pos_parent_);
-    //pose_payload.Pos() += pose_payload.Rot().RotateVector(hoist_pos_payload_);
-
-    // if(ini_){
-    //     q_pr_pa_ = pose_parent.Rot().Inverse()*pose_payload.Rot();
-    //     ini_=false;
-    // }
 
     // Position error quantities (expressed in world frame)
     ignition::math::Vector3d lin_vel_err =  payload_->WorldLinearVel(hoist_pos_payload_) - parent_->WorldLinearVel(hoist_pos_parent_);
     //ignition::math::Vector3d pos_err = pose_parent.Pos()-pose_payload.Pos();
     ignition::math::Vector3d pos_err = pose_parent.Pos()-pose_payload.Pos();
     lin_vel_err.Correct();
-
-    // Orientation error quantities (expressed in payload frame)
-    // ignition::math::Vector3d rot_vel_err = pose_payload.Rot().RotateVectorReverse(payload_->WorldAngularVel()-parent_->WorldAngularVel());
-
 
     ignition::math::Vector3d z_Axis = pose_parent.Rot().ZAxis();
     ignition::math::Vector3d y_Axis = pose_parent.Rot().YAxis();
@@ -199,12 +170,10 @@ void GazeboPayloadPlugin::OnUpdate() {
         catching_ = true;
     }
 
-    //ignition::math::Quaterniond rot_err = q_pr_pa_.Inverse()*pose_parent.Rot().Inverse()*pose_payload.Rot();
-
     // double omega = 1;    // natural frequency
     // double zeta = 1.0;      // damping ratio
     // double mass = 1;
-    double k_p_lin_z = 100;
+    double k_p_lin_z = 1000;
     double k_d_lin_xy = 10;//5 * zeta*omega*mass;
     double k_d_lin_z = 10; //2;
     double reactio_xy = 0;
@@ -243,12 +212,20 @@ void GazeboPayloadPlugin::OnUpdate() {
     // if(forcez<-100)
     //     forcez = -100;
 
-    gzerr << /*" precatch: " << precatch_ << " Catching: " << catching_ << " postcatch: " << postcatch_ <<*/
-        " Fx: " << forcex_t << " Fy: " << forcey_t <<  " Fz: " << forcez_t <<
-        " LinVelErr: " << lin_vel_err <<
-        " PosErr: " << pos_err  << /*" D_net: " << distance_net <<*/"\n";
+    // gzerr << /*" precatch: " << precatch_ << " Catching: " << catching_ << " postcatch: " << postcatch_ <<*/
+    //     " Fx: " << forcex_t << " Fy: " << forcey_t <<  " Fz: " << forcez_t <<
+    //     " LinVelErr: " << lin_vel_err <<
+    //     " PosErr: " << pos_err  << /*" D_net: " << distance_net <<*/"\n";
     ignition::math::Vector3d force_t(forcex_t, forcey_t, forcez_t);
     ignition::math::Vector3d force_d(forcex_d, forcey_d, forcez_d);
+
+    gazebo::msgs::Vector3d* frc = force_msg_.mutable_position();
+    frc->set_x(forcex_d);
+    frc->set_y(forcey_d);
+    frc->set_z(forcez_d);
+    force_msg_.mutable_header()->mutable_stamp()->set_sec(current_time.sec);
+    force_msg_.mutable_header()->mutable_stamp()->set_nsec(current_time.nsec);
+    // force_pub_->Publish(force_msg_);
 
     force_d.Correct();
     force_t.Correct();
