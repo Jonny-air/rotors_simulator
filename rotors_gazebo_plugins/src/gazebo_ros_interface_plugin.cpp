@@ -446,7 +446,6 @@ void GazeboRosInterfacePlugin::GzConnectRosToGazeboTopicMsgCallback(
       gazebo::transport::PublisherPtr gz_publisher_ptr =
           gz_node_handle_->Advertise<gz_geometry_msgs::Vector3dStamped>(
               gz_connect_ros_to_gazebo_topic_msg->gazebo_topic(), 1);
-      gzerr << "ConnectGazebo\n";
       // Create ROS subscriber.
       ros::Subscriber ros_subscriber =
           ros_node_handle_->subscribe<geometry_msgs::PointStamped>(

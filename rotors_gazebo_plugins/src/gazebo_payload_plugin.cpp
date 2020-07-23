@@ -93,9 +93,8 @@ void GazeboPayloadPlugin::Load(physics::ModelPtr _model,
 /////////////////////////////////////////////////
 void GazeboPayloadPlugin::CreatePubsAndSubs(){
     target_pos_sub_ = node_handle_->Subscribe("~/visualization/victim_position", &GazeboPayloadPlugin::TPosCallback, this);
-    // target_pos_sub_->Subscribe(&GazeboPayloadPlugin::TPosCallback, this);
 
-    // force_pub_ = node_handle_->Advertise<gz_geometry_msgs::Vector3dStamped>("~/visualization/impact_force", 1);
+    force_pub_ = node_handle_->Advertise<gz_geometry_msgs::Vector3dStamped>("~/visualization/impact_force", 1);
 
     gazebo::transport::PublisherPtr connect_ros_to_gazebo_topic_pub =
         node_handle_->Advertise<gz_std_msgs::ConnectRosToGazeboTopic>(
@@ -107,15 +106,15 @@ void GazeboPayloadPlugin::CreatePubsAndSubs(){
     connect_ros_to_gazebo_topic_msg.set_msgtype(gz_std_msgs::ConnectRosToGazeboTopic::VICTIM_POSITION);
     connect_ros_to_gazebo_topic_pub->Publish(connect_ros_to_gazebo_topic_msg, true);
 
-    // gazebo::transport::PublisherPtr connect_gazebo_to_ros_topic_pub =
-    //     node_handle_->Advertise<gz_std_msgs::ConnectGazeboToRosTopic>(
-    //         "~/" + kConnectGazeboToRosSubtopic, 1);
+    gazebo::transport::PublisherPtr connect_gazebo_to_ros_topic_pub =
+        node_handle_->Advertise<gz_std_msgs::ConnectGazeboToRosTopic>(
+            "~/" + kConnectGazeboToRosSubtopic, 1);
 
-    // gz_std_msgs::ConnectGazeboToRosTopic connect_gazebo_to_ros_topic_msg;
-    // connect_gazebo_to_ros_topic_msg.set_gazebo_topic("~/visualization/impact_force");
-    // connect_gazebo_to_ros_topic_msg.set_ros_topic("/visualization/impact_force");
-    // connect_gazebo_to_ros_topic_msg.set_msgtype(gz_std_msgs::ConnectGazeboToRosTopic::VECTOR_3D_STAMPED);
-    // connect_gazebo_to_ros_topic_pub->Publish(connect_gazebo_to_ros_topic_msg, true);
+    gz_std_msgs::ConnectGazeboToRosTopic connect_gazebo_to_ros_topic_msg;
+    connect_gazebo_to_ros_topic_msg.set_gazebo_topic("~/visualization/impact_force");
+    connect_gazebo_to_ros_topic_msg.set_ros_topic("/visualization/impact_force");
+    connect_gazebo_to_ros_topic_msg.set_msgtype(gz_std_msgs::ConnectGazeboToRosTopic::VECTOR_3D_STAMPED);
+    connect_gazebo_to_ros_topic_pub->Publish(connect_gazebo_to_ros_topic_msg, true);
 }
 
 
@@ -174,8 +173,8 @@ void GazeboPayloadPlugin::OnUpdate() {
     // double zeta = 1.0;      // damping ratio
     // double mass = 1;
     double k_p_lin_z = 1000;
-    double k_d_lin_xy = 10;//5 * zeta*omega*mass;
-    double k_d_lin_z = 10; //2;
+    double k_d_lin_xy = 100;//5 * zeta*omega*mass;
+    double k_d_lin_z = 100; //2;
     double reactio_xy = 0;
     double reactio_z = 1;
 
@@ -225,7 +224,7 @@ void GazeboPayloadPlugin::OnUpdate() {
     frc->set_z(forcez_d);
     force_msg_.mutable_header()->mutable_stamp()->set_sec(current_time.sec);
     force_msg_.mutable_header()->mutable_stamp()->set_nsec(current_time.nsec);
-    // force_pub_->Publish(force_msg_);
+    force_pub_->Publish(force_msg_);
 
     force_d.Correct();
     force_t.Correct();
@@ -233,6 +232,6 @@ void GazeboPayloadPlugin::OnUpdate() {
     ignition::math::Vector3d force_position(pos_err.Dot(x_Axis), pos_err.Dot(y_Axis), 0);
     ignition::math::Vector3d zero(0,0,0);
 
-    parent_->AddForceAtRelativePosition(force_d, force_position);
+    parent_->AddForceAtRelativePosition(force_d, -force_position);
     payload_->AddForceAtRelativePosition(force_t, zero);
 }
