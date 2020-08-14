@@ -82,7 +82,9 @@ private:
 
     transport::SubscriberPtr target_pos_sub_;
     transport::PublisherPtr force_pub_;
+    transport::PublisherPtr offset_pub_;
     gz_geometry_msgs::Vector3dStamped force_msg_;
+    gz_geometry_msgs::Vector3dStamped offset_msg_;
     // transport::PublishPtr force_pub_;
 
     bool pubs_and_subs_created_ = false;

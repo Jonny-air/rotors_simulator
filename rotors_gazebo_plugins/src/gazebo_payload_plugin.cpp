@@ -36,6 +36,7 @@ GazeboPayloadPlugin::GazeboPayloadPlugin()
     catching_ = false;
     postcatch_ = false;
     force_msg_.mutable_header()->set_frame_id("world");
+    offset_msg_.mutable_header()->set_frame_id("world");
 }
 
 /////////////////////////////////////////////////
@@ -95,6 +96,7 @@ void GazeboPayloadPlugin::CreatePubsAndSubs(){
     target_pos_sub_ = node_handle_->Subscribe("~/visualization/victim_position", &GazeboPayloadPlugin::TPosCallback, this);
 
     force_pub_ = node_handle_->Advertise<gz_geometry_msgs::Vector3dStamped>("~/visualization/impact_force", 1);
+    offset_pub_ = node_handle_->Advertise<gz_geometry_msgs::Vector3dStamped>("~/gazebo/victim_offset", 1);
 
     gazebo::transport::PublisherPtr connect_ros_to_gazebo_topic_pub =
         node_handle_->Advertise<gz_std_msgs::ConnectRosToGazeboTopic>(
@@ -113,6 +115,11 @@ void GazeboPayloadPlugin::CreatePubsAndSubs(){
     gz_std_msgs::ConnectGazeboToRosTopic connect_gazebo_to_ros_topic_msg;
     connect_gazebo_to_ros_topic_msg.set_gazebo_topic("~/visualization/impact_force");
     connect_gazebo_to_ros_topic_msg.set_ros_topic("/visualization/impact_force");
+    connect_gazebo_to_ros_topic_msg.set_msgtype(gz_std_msgs::ConnectGazeboToRosTopic::VECTOR_3D_STAMPED);
+    connect_gazebo_to_ros_topic_pub->Publish(connect_gazebo_to_ros_topic_msg, true);
+
+    connect_gazebo_to_ros_topic_msg.set_gazebo_topic("~/gazebo/victim_offset");
+    connect_gazebo_to_ros_topic_msg.set_ros_topic("/gazebo/victim_offset");
     connect_gazebo_to_ros_topic_msg.set_msgtype(gz_std_msgs::ConnectGazeboToRosTopic::VECTOR_3D_STAMPED);
     connect_gazebo_to_ros_topic_pub->Publish(connect_gazebo_to_ros_topic_msg, true);
 }
@@ -173,8 +180,8 @@ void GazeboPayloadPlugin::OnUpdate() {
     // double zeta = 1.0;      // damping ratio
     // double mass = 1;
     double k_p_lin_z = 1000;
-    double k_d_lin_xy = 100;//5 * zeta*omega*mass;
-    double k_d_lin_z = 100; //2;
+    double k_d_lin_xy = 100;
+    double k_d_lin_z = 100;
     double reactio_xy = 0;
     double reactio_z = 1;
 
@@ -225,6 +232,14 @@ void GazeboPayloadPlugin::OnUpdate() {
     force_msg_.mutable_header()->mutable_stamp()->set_sec(current_time.sec);
     force_msg_.mutable_header()->mutable_stamp()->set_nsec(current_time.nsec);
     force_pub_->Publish(force_msg_);
+
+    gazebo::msgs::Vector3d* offset = offset_msg_.mutable_position();
+    offset->set_x(pos_err[0]);
+    offset->set_y(pos_err[1]);
+    offset->set_z(pos_err[2]);
+    offset_msg_.mutable_header()->mutable_stamp()->set_sec(current_time.sec);
+    offset_msg_.mutable_header()->mutable_stamp()->set_nsec(current_time.nsec);
+    offset_pub_->Publish(offset_msg_);
 
     force_d.Correct();
     force_t.Correct();
