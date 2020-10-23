@@ -1,0 +1,106 @@
+<launch>
+  <arg name="uav_name" default="believer"/>
+  <arg name="world_name" default="fw_playground"/>
+  <arg name="enable_logging" default="false"/>
+  <arg name="enable_ground_truth" default="true"/>
+  <arg name="log_file" default="$(arg uav_name)"/>
+  <arg name="debug" default="false"/>
+  <arg name="gui" default="true"/>
+  <arg name="paused" default="false"/>
+  <!-- The following line causes gzmsg and gzerr messages to be printed to the console
+      (even when Gazebo is started through roslaunch) -->
+  <arg name="verbose" default="true"/>
+  <arg name="spawn_tc" default="false"/>
+  <arg name="enable_wind" default="false"/>
+  <arg name="record_rosbag" default="false"/>
+  <arg name="rosbag_path" default=""/>
+  <!--mavros params:-->
+  <arg name="fcu_url" default="/dev/ttyUSB0:57600" /> <!--/dev/ttyACM0:57600 for USB and /dev/ttyPixhawk for connection via Telem2-->
+  <arg name="respawn_mavros" default="false" />
+
+  <arg name="log_output" default="screen" />
+  <arg name="fcu_protocol" default="v2.0" />
+  <arg name="tgt_system" default="1" />
+  <arg name="tgt_component" default="1" />
+  <arg name="capability_group" default="Core" />
+
+
+  <env name="GAZEBO_MODEL_PATH" value="${GAZEBO_MODEL_PATH}:$(find rotors_gazebo)/models"/>
+  <env name="GAZEBO_RESOURCE_PATH" value="${GAZEBO_RESOURCE_PATH}:$(find rotors_gazebo)/models"/>
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="world_name" value="$(find rotors_gazebo)/worlds/$(arg world_name).world"/>
+    <arg name="debug" value="$(arg debug)" />
+    <arg name="paused" value="$(arg paused)" />
+    <arg name="gui" value="$(arg gui)" />
+    <arg name="verbose" value="$(arg verbose)"/>
+  </include>
+
+  <node pkg="mavros" type="mavros_node" name="mavros" required="$(eval not respawn_mavros)" respawn="false" clear_params="true" output="$(arg log_output)">
+     <param name="gcs_url" value="udp://127.0.0.1:14555@127.0.0.1:14550"/>
+     <param name="fcu_url" value="$(arg fcu_url)" />
+     <param name="fcu_protocol" value="$(arg fcu_protocol)" />
+     <param name="capability_group" value="$(arg capability_group)" />
+     <param name="target_system_id" value="$(arg tgt_system)" />
+     <param name="target_component_id" value="$(arg tgt_component)" />
+  </node>
+
+  <group ns="uav_1">
+    <include file="$(find rotors_gazebo)/launch/spawn_fixed_wing.launch">
+      <arg name="uav_name" value="$(arg uav_name)" />
+      <arg name="namespace" value="uav_1" />
+      <arg name="model" value="$(find rotors_description)/urdf/$(arg uav_name)_base.xacro" />
+      <arg name="enable_logging" value="$(arg enable_logging)" />
+      <arg name="enable_ground_truth" value="$(arg enable_ground_truth)" />
+      <arg name="log_file" value="$(arg log_file)" />
+      <arg name="enable_wind" value="$(arg enable_wind)"/>
+      <arg name="record_rosbag" default="$(arg record_rosbag)"/>
+      <arg name="rosbag_path" default="$(arg rosbag_path)"/>
+    </include>
+
+    <!-- <node name="hil_interface" pkg="rotors_hil_interface" type="rotors_hil_interface_node" clear_params="true" output="screen">
+      <param name="gps_topic" value="gps" />
+      <param name="imu_topic" value="imu" />
+      <param name="odometry_topic" value="ground_truth/odometry" />
+      <param name="hil_controls_sub_topic" value="/mavros/hil/controls" />
+      <param name="actuators_pub_topic" value="command/motor_speed" />
+      <param name="mavlink_pub_topic" value="/mavlink/to" />
+      <param name="sensor_level_hil" value="true" />
+      <param name="hil_gps_frequency" value="5.0" />
+      <param name="hil_frequency" value="250.0" />
+    </node> -->
+
+    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"/>
+
+    <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher">
+      <rosparam param = "source_list"> ["/all_joint_states"]</rosparam>
+      <!--<param name = "use_gui" value = "true"/>-->
+    </node>
+
+  </group>
+
+  <group if="$(arg spawn_tc)">
+    <group ns="uav_1_tc">
+      <include file="$(find rotors_gazebo)/launch/spawn_tracking_cam.launch">
+        <arg name="target_uav" value="uav_1" />
+        <arg name="namespace" value="uav_1_tc_1" />
+        <arg name="target_pos_topic" value="uav_1/tracking_pos" />
+        <arg name="x" value="25"/>
+        <arg name="horizontal_fov" value="2"/>
+      </include>
+    </group>
+    <group ns="uav_1_tc_2">
+      <include file="$(find rotors_gazebo)/launch/spawn_tracking_cam.launch">
+        <arg name="target_uav" value="uav_1" />
+        <arg name="namespace" value="uav_1_tc_2" />
+        <arg name="target_pos_topic" value="uav_1/tracking_pos" />
+        <arg name="x" value="0.0"/>
+        <arg name="y" value="0.0"/>
+        <arg name="z" value="0.0"/>
+        <arg name="horizontal_fov" value="0.2"/>
+      </include>
+    </group>
+  </group>
+
+  <!-- <node name="hil_plugin_gui" pkg="rqt_rotors" type="hil_plugin" clear_params="true" output="screen" /> -->
+
+</launch>

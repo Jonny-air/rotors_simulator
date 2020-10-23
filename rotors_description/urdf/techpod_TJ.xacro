@@ -676,7 +676,7 @@
       <qgc_addr>INADDR_ANY</qgc_addr>
       <qgc_udp_port>14550</qgc_udp_port>
       <hil_mode>true</hil_mode>
-      <hil_state_level>false</hil_state_level>
+      <hil_state_level>true</hil_state_level>
       <enable_lockstep>false</enable_lockstep>
       <use_tcp>false</use_tcp>
       <motorSpeedCommandPubTopic>/command/motor_speed_old</motorSpeedCommandPubTopic>
@@ -689,9 +689,9 @@
       </wind>
       <control_channels>
       <channel name="propeller">
-        <input_index>4</input_index>
-        <input_offset>1</input_offset>
-        <input_scaling>578.7</input_scaling><!-- rdps_slope/2  [rad/s]-->
+        <input_index>3</input_index>
+        <input_offset>0</input_offset>
+        <input_scaling>1157.4</input_scaling><!-- rdps_slope/2  [rad/s]-->
         <zero_position_disarmed>0</zero_position_disarmed>
         <zero_position_armed>15.03</zero_position_armed>
         <joint_control_type>gz_msg</joint_control_type>
@@ -731,7 +731,7 @@
         <joint_name>${namespace}/aileron_right_joint</joint_name>
       </channel>
       <channel name="elevator">
-        <input_index>2</input_index>
+        <input_index>1</input_index>
         <input_offset>0</input_offset>
         <input_scaling>0.3</input_scaling>
         <zero_position_disarmed>0</zero_position_disarmed>
@@ -743,8 +743,8 @@
         <joint_name>${namespace}/elevator_joint</joint_name>
       </channel>
       <channel name="rudder">
-        <input_index>3</input_index>
-        <input_offset>-0.5</input_offset>
+        <input_index>2</input_index>
+        <input_offset>0</input_offset>
         <input_scaling>-0.6</input_scaling>
         <zero_position_disarmed>0</zero_position_disarmed>
         <zero_position_armed>0</zero_position_armed>
@@ -756,7 +756,7 @@
       </channel>
       <channel name="flap_left">
         <input_index>5</input_index>
-        <input_offset>0</input_offset>
+        <input_offset>0.5</input_offset>
         <input_scaling>0.3</input_scaling>
         <zero_position_disarmed>0</zero_position_disarmed>
         <zero_position_armed>0</zero_position_armed>
@@ -768,7 +768,7 @@
       </channel>
       <channel name="flap_right">
         <input_index>5</input_index>
-        <input_offset>0</input_offset>
+        <input_offset>0.5</input_offset>
         <input_scaling>0.3</input_scaling>
         <zero_position_disarmed>0</zero_position_disarmed>
         <zero_position_armed>0</zero_position_armed>
