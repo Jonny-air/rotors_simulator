@@ -15,6 +15,7 @@
   <arg name="record_rosbag" default="false"/>
   <arg name="rosbag_path" default=""/>
   <!--mavros params:-->
+  <arg name="spawn_mavros" default ="false" />
   <arg name="fcu_url" default="/dev/ttyUSB0:57600" /> <!--/dev/ttyACM0:57600 for USB and /dev/ttyPixhawk for connection via Telem2-->
   <arg name="respawn_mavros" default="false" />
 
@@ -35,14 +36,16 @@
     <arg name="verbose" value="$(arg verbose)"/>
   </include>
 
-  <node pkg="mavros" type="mavros_node" name="mavros" required="$(eval not respawn_mavros)" respawn="false" clear_params="true" output="$(arg log_output)">
-     <param name="gcs_url" value="udp://127.0.0.1:14555@127.0.0.1:14550"/>
-     <param name="fcu_url" value="$(arg fcu_url)" />
-     <param name="fcu_protocol" value="$(arg fcu_protocol)" />
-     <param name="capability_group" value="$(arg capability_group)" />
-     <param name="target_system_id" value="$(arg tgt_system)" />
-     <param name="target_component_id" value="$(arg tgt_component)" />
-  </node>
+  <group if="$(arg spawn_mavros)">
+    <node pkg="mavros" type="mavros_node" name="mavros" required="$(eval not respawn_mavros)" respawn="false" clear_params="true" output="$(arg log_output)">
+       <param name="gcs_url" value="udp://127.0.0.1:14555@127.0.0.1:14550"/>
+       <param name="fcu_url" value="$(arg fcu_url)" />
+       <param name="fcu_protocol" value="$(arg fcu_protocol)" />
+       <param name="capability_group" value="$(arg capability_group)" />
+       <param name="target_system_id" value="$(arg tgt_system)" />
+       <param name="target_component_id" value="$(arg tgt_component)" />
+    </node>
+  </group>
 
   <group ns="uav_1">
     <include file="$(find rotors_gazebo)/launch/spawn_fixed_wing.launch">
