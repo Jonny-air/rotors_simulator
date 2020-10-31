@@ -1,0 +1,34 @@
+# Believer vehicle parameters
+wing_span: 1.8           # [m]
+wing_surface: 0.43        # [m^2]
+chord_length: 0.25        # [m]
+thrust_inclination: 0.0   # [rad]
+
+# Channel number for throttle in the array of normalized actuator commands
+propeller0_channel: 4
+propeller1_channel: 5
+
+# Control surfaces parameters
+#   [rad] Minimum deflection angle
+#   [rad] Maximum deflection angle
+#   Channel number in the array of normalized actuator commands
+aileron_left:
+  channel: 0
+  deflection_min: -0.349066
+  deflection_max: 0.349066
+aileron_right:
+  channel: 0
+  deflection_min: -0.349066
+  deflection_max: 0.349066
+vtail_left:
+  channel: 1
+  deflection_min: -0.349066
+  deflection_max: 0.349066
+vtail_right:
+  channel: 2
+  deflection_min: -0.349066
+  deflection_max: 0.349066
+flap:
+  channel: 6
+  deflection_min: -0.349066
+  deflection_max: 0.349066
