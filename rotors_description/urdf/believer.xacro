@@ -652,7 +652,7 @@
       <qgc_addr>INADDR_ANY</qgc_addr>
       <qgc_udp_port>14550</qgc_udp_port>
       <hil_mode>true</hil_mode>
-      <hil_state_level>false</hil_state_level>
+      <hil_state_level>true</hil_state_level>
       <enable_lockstep>false</enable_lockstep>
       <use_tcp>false</use_tcp>
       <motorSpeedCommandPubTopic>/command/motor_speed_old</motorSpeedCommandPubTopic>
@@ -683,7 +683,7 @@
         -->
       </channel>
       <channel name="propeller_1">
-        <input_index>5</input_index>
+        <input_index>4</input_index>
         <input_offset>0</input_offset>
         <input_scaling>985</input_scaling><!-- rdps_slope/2  [rad/s]-->
         <zero_position_disarmed>0</zero_position_disarmed>
@@ -750,7 +750,7 @@
         <joint_name>${namespace}/vtail_right_joint</joint_name>
       </channel>
       <channel name="flap_left">
-        <input_index>6</input_index>
+        <input_index>5</input_index>
         <input_offset>0</input_offset>
         <input_scaling>0.3</input_scaling>
         <zero_position_disarmed>0</zero_position_disarmed>
@@ -762,7 +762,7 @@
         <joint_name>${namespace}/flap_left_joint</joint_name>
       </channel>
       <channel name="flap_right">
-        <input_index>6</input_index>
+        <input_index>5</input_index>
         <input_offset>0</input_offset>
         <input_scaling>0.3</input_scaling>
         <zero_position_disarmed>0</zero_position_disarmed>
