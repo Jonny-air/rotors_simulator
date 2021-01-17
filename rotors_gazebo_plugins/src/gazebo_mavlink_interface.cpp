@@ -890,7 +890,7 @@ void GazeboMavlinkInterface::SendSensorMessages() {
 
     // assumed indicated airspeed due to flow aligned with pitot (body x)
     if (vel_b.X()-wind_sens_B.X()>0)
-        hil_state_quat.ind_airspeed = vel_b.X()-wind_sens_B.X();
+        hil_state_quat.ind_airspeed = 100* vel_b.X()-wind_sens_B.X();
     else
         hil_state_quat.ind_airspeed = 0;
 
