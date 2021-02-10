@@ -23,8 +23,8 @@
 
     <spherical_coordinates>
       <surface_model>EARTH_WGS84</surface_model>
-      <latitude_deg>47.3667</latitude_deg>
-      <longitude_deg>8.5500</longitude_deg>
+      <latitude_deg>0.0</latitude_deg>
+      <longitude_deg>0.0</longitude_deg>
       <elevation>500.0</elevation>
       <heading_deg>180</heading_deg>
     </spherical_coordinates>
@@ -580,6 +580,62 @@
         </link>
     </model>
 
+    <model name="payload">
+      <static>true</static>
+        <link name='interception_point'>
+          <visual name='interception_point_vis'>
+            <pose>0 0 2 0 0 0</pose>
+            <cast_shadows>false</cast_shadows>
+            <geometry>
+              <cylinder>
+                <radius>0.25</radius>
+                <length>0.5</length>
+              </cylinder>
+            </geometry>
+            <material>
+              <script>
+                <uri>file://media/materials/scripts/gazebo.material</uri>
+                <name>Gazebo/Red</name>
+              </script>
+            </material>
+          </visual>
+        </link>
+    </model>
+
+    <!-- <model name="payload_stand">
+      <static>true</static>
+        <link name='payload_stand'>
+          <pose>0 0 0.625 0 0 0</pose>
+          <visual name='payload_vis'>
+            <pose>0 0 0 0 0 0</pose>
+            <cast_shadows>false</cast_shadows>
+            <geometry>
+              <cylinder>
+                <radius>0.25</radius>
+                <length>1.25</length>
+              </cylinder>
+            </geometry>
+            <material>
+              <script>
+                <uri>file://media/materials/scripts/gazebo.material</uri>
+                <name>Gazebo/Grey</name>
+              </script>
+            </material>
+          </visual>
+          <collision name="collsiion_payload_stand">
+            <pose>0 0 0 0 0 0</pose>
+            <geometry>
+               <cylinder>
+                <radius>0.25</radius>
+                <length>1.25</length>
+              </cylinder>
+            </geometry>
+          </collision>
+        </link>
+    </model> -->
+
+
+
     <!-- Pylons -->
 
     <!--
@@ -851,7 +907,7 @@
     </model>
     -->
 
-    <model name="pylon3">
+    <!-- <model name="pylon3">
      <static>true</static>
      <link name="pylon">
        <pose>40 20 0 0 0 0</pose>
@@ -1889,7 +1945,7 @@
          </geometry>
        </collision>
      </link>
-    </model>
+    </model> -->
 
     </world>
 </sdf>

@@ -121,6 +121,7 @@
 
   <!-- Included URDF Files -->
   <xacro:include filename="$(find rotors_description)/urdf/fixed_wing_X_base.xacro" />
+  <xacro:include filename="$(find rotors_description)/urdf/hook_simple.xacro" />
 
   <!-- Instantiate fixed_wing_base_macro once -->
   <xacro:fixed_wing_base_macro
@@ -135,6 +136,58 @@
     <origin xyz="0 0 0" rpy="0 0 0" />
     <xacro:insert_block name="body_inertia" />
   </xacro:fixed_wing_base_macro>
+
+  <!-- <xacro:payload_hook_simple namespace="${namespace}">
+  </xacro:payload_hook_simple>
+
+  <link name="${namespace}/soccer_ball_1">
+    <inertial>
+       <origin xyz="0 0 0" rpy="0 0 0" />
+       <mass value="1.0" />
+       <xacro:sphere_inertia r="0.25" mass="1.0" />
+    </inertial>
+    <visual>
+       <origin xyz="0 0 0" rpy="0 0 0" />
+       <geometry>
+          <sphere radius = "0.25" />
+       </geometry>
+    </visual>
+    <collision>
+       <origin xyz="0 0 0" rpy="0 0 0" />
+       <geometry>
+          <sphere radius = "0.25" />
+       </geometry>
+    </collision>
+  </link>
+  <joint name="${namespace}/payload_1_joint" type="floating">
+    <parent link="${namespace}/payload_hook" />
+    <child link="${namespace}/soccer_ball_1" />
+    <origin xyz="-1.5 0 0" rpy="0 0 0" />
+  </joint>
+  <gazebo reference="${namespace}/soccer_ball_1">
+    <material>Gazebo/White</material>
+    <mu1>0.2</mu1>
+    <mu2>0.2</mu2>
+    <kp>10000</kp>
+    <kd>1</kd>
+  </gazebo>
+  <gazebo>
+    <plugin filename="librotors_gazebo_payload_plugin.so" name="payload_plugin_1">
+       <robotNamespace>${namespace}</robotNamespace>
+       <joint>${namespace}/payload_1_joint</joint>
+       <payload>${namespace}/soccer_ball_1</payload>
+       <parent>${namespace}/payload_hook</parent>
+       <proxRec>true</proxRec>
+       <radiusRec>0.5</radiusRec>
+       <omega>6</omega>
+       <hoistPosParent>-1.0 0 0</hoistPosParent>
+       <hoistPosPayload>0 0 0</hoistPosPayload>
+       <pickupWorldPosPayload>0 0 2.2</pickupWorldPosPayload>
+       <initialState>3</initialState>
+       <dropTopic>drop_1</dropTopic>
+       <payloadTrackingTopic>soccer_ball_1</payloadTrackingTopic>
+    </plugin>
+  </gazebo> -->
 
   <!-- Instantiate the ailerons -->
   <xacro:control_surface
@@ -304,16 +357,16 @@
         <robotNamespace>${namespace}</robotNamespace>
         <windLayer>
           <layer name="layer1">
-            <altitude>10</altitude>
-            <windMeanNED>-5 0 0</windMeanNED>
+            <altitude>2</altitude>
+            <windMeanNED>-2 0 0</windMeanNED>
           </layer>
           <layer name="layer2">
-            <altitude>25</altitude>
-            <windMeanNED>-6 0 0</windMeanNED>
+            <altitude>10</altitude>
+            <windMeanNED>-4 0.5 1</windMeanNED>
           </layer>
           <layer name="layer3">
             <altitude>35</altitude>
-            <windMeanNED>-10 0 0</windMeanNED>
+            <windMeanNED>-4 0 0</windMeanNED>
           </layer>
         </windLayer>
         <findWind>
@@ -323,10 +376,10 @@
           </query>
         </findWind>
         <lambdaMin>10</lambdaMin>
-        <lengthScale>725</lengthScale>
-        <fourierNNN>10 10 10</fourierNNN>
-        <sigma>5</sigma>
-        <trnspVelTurbNED>5 0 0</trnspVelTurbNED>
+        <lengthScale>750</lengthScale>
+        <fourierNNN>5 5 5</fourierNNN>
+        <sigma>2</sigma>
+        <trnspVelTurbNED>3 0 0</trnspVelTurbNED>
       </plugin>
     </gazebo>
   </xacro:if>
@@ -594,12 +647,13 @@
           <forward>1 0 0</forward>
           <upward>0 -0.5 0.866</upward>
           <cp>-0.713 0.158 0.1</cp>
+          <!-- <cp>-0.813 0.158 0.1</cp> -->
           <seg_area>0.068</seg_area>
           <seg_chord>0.22</seg_chord>
           <aeroParamsYAML>${yaml_path}/believer_vtail.yaml</aeroParamsYAML>
-          <indVel name="prop0">
+          <!-- <indVel name="prop0">
             <topic>prop_slpstr_0</topic>
-          </indVel>
+          </indVel> -->
           <wind name="wind">
             <topic>wind_base_link</topic>
           </wind>
@@ -614,12 +668,13 @@
           <forward>1 0 0</forward>
           <upward>0 0.5 0.866</upward>
           <cp>-0.713 -0.158 0.1</cp>
+          <!-- <cp>-0.813 0.158 0.1</cp> -->
           <seg_area>0.068</seg_area>
           <seg_chord>0.22</seg_chord>
           <aeroParamsYAML>${yaml_path}/believer_vtail.yaml</aeroParamsYAML>
-          <indVel name="prop1">
+          <!-- <indVel name="prop1">
             <topic>prop_slpstr_1</topic>
-          </indVel>
+          </indVel> -->
           <wind name="wind">
             <topic>wind_base_link</topic>
           </wind>
@@ -639,10 +694,10 @@
       <robotNamespace>${namespace}</robotNamespace>
       <protocol_version>2.0</protocol_version>
       <imuSubTopic>/imu</imuSubTopic>
+      <lidarSubTopic>/lidar_lite_v3</lidarSubTopic>
       <imu_rate>250</imu_rate>
       <gpsSubTopic>/gps</gpsSubTopic>
       <gpsGtSubTopic>/gps_gt</gpsGtSubTopic>
-      <lidarSubTopic></lidarSubTopic>
       <opticalFlowSubTopic></opticalFlowSubTopic>
       <mavlink_addr>INADDR_ANY</mavlink_addr>
       <mavlink_udp_port>14560</mavlink_udp_port>

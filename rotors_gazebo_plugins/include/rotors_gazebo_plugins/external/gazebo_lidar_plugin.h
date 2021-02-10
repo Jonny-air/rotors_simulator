@@ -51,7 +51,7 @@ namespace gazebo
     protected: physics::WorldPtr world;
 
     /// \brief The parent sensor
-    private: 
+    private:
       sensors::RaySensorPtr parentSensor;
       transport::NodePtr node_handle_;
       transport::PublisherPtr lidar_pub_;
@@ -59,7 +59,7 @@ namespace gazebo
 
 
     /// \brief The connection tied to RayPlugin::OnNewLaserScans()
-    private: 
+    private:
       event::ConnectionPtr newLaserScansConnection;
       lidar_msgs::msgs::lidar lidar_message;
   };

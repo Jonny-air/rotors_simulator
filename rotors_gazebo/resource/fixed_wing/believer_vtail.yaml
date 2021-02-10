@@ -13,7 +13,7 @@ alpha_min_ns: -0.14   # [rad]
 
 # derived from latest ID
 c_lift_alpha: [0, 3.4972, 0]
-c_drag_alpha: [0.0135, 0.2633, 0.2042]
+c_drag_alpha: [0.0, 0.7633, 0.2042]
 c_pitch_moment_alpha: [0, 0]
 
 alpha_blend: 0.2 # [rad]

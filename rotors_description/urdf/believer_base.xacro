@@ -32,6 +32,10 @@
     <origin xyz="0.0 0.0 0.1" rpy="0 0 0" />
   </xacro:default_gps>
 
+  <xacro:default_lidar namespace="${namespace}" parent_link="${namespace}/base_link" >
+    <origin xyz="-0.2 0.0 -0.1" rpy="0 1.506 0" />
+  </xacro:default_lidar>
+
   <xacro:default_camera
     namespace="${namespace}"
     parent_link="${namespace}/base_link"
